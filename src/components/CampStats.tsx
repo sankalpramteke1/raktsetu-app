@@ -1,40 +1,77 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { BorderRadius, GlassStyles, Palette, Spacing } from '../constants/theme';
+import { BorderRadius, Palette, Shadows, Spacing } from '../constants/theme';
+import { CampSummaryStats } from '../types/camp';
 
-interface Props { stats: any; }
+interface Props {
+  stats: CampSummaryStats;
+}
 
 export const CampStats: React.FC<Props> = ({ stats }) => {
-  if (!stats) return null;
   return (
     <View style={styles.container}>
-      <View style={styles.statItem}>
-        <Text style={styles.val}>{stats.total ?? 0}</Text>
-        <Text style={styles.label}>Total</Text>
-      </View>
-      <View style={styles.divider} />
-      <View style={styles.statItem}>
-        <Text style={[styles.val, { color: Palette.healthy }]}>{stats.ongoing ?? 0}</Text>
-        <Text style={styles.label}>Active</Text>
-      </View>
-      <View style={styles.divider} />
-      <View style={styles.statItem}>
-        <Text style={[styles.val, { color: Palette.moderate }]}>{stats.upcoming ?? 0}</Text>
+      <View style={styles.col}>
+        <Text style={[styles.val, { color: Palette.moderate }]}>{stats.upcoming}</Text>
         <Text style={styles.label}>Upcoming</Text>
       </View>
-      <View style={styles.divider} />
-      <View style={styles.statItem}>
-        <Text style={[styles.val, { color: Palette.textMuted }]}>{stats.completed ?? 0}</Text>
-        <Text style={styles.label}>Done</Text>
+
+      <View style={styles.dividerV} />
+
+      <View style={styles.col}>
+        <Text style={[styles.val, { color: Palette.healthy }]}>{stats.ongoing}</Text>
+        <Text style={styles.label}>Ongoing</Text>
+      </View>
+
+      <View style={styles.dividerV} />
+
+      <View style={styles.col}>
+        <Text style={styles.val}>{stats.completed}</Text>
+        <Text style={styles.label}>Completed</Text>
+      </View>
+
+      <View style={styles.dividerV} />
+
+      <View style={styles.col}>
+        <Text style={[styles.val, { color: Palette.primary }]}>{stats.totalUnits}</Text>
+        <Text style={styles.label}>Total Units</Text>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { ...GlassStyles.card, flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: Spacing.md, marginBottom: Spacing.sm },
-  statItem: { flex: 1, alignItems: 'center' },
-  val: { fontSize: 18, fontWeight: '800', color: Palette.textPrimary, letterSpacing: -0.3 },
-  label: { fontSize: 10, color: Palette.textMuted, fontWeight: '600', marginTop: 2 },
-  divider: { width: 1, height: 24, backgroundColor: Palette.borderSubtle },
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Palette.white,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: 12,
+    paddingHorizontal: Spacing.md,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    ...Shadows.subtle,
+    marginBottom: Spacing.sm,
+  },
+  col: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  val: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: Palette.textPrimary,
+  },
+  label: {
+    fontSize: 10,
+    color: Palette.textMuted,
+    fontWeight: '600',
+    marginTop: 2,
+    textTransform: 'uppercase',
+  },
+  dividerV: {
+    width: 1,
+    height: 24,
+    backgroundColor: Palette.borderSubtle,
+  },
 });

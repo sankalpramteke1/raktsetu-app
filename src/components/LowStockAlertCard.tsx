@@ -1,26 +1,94 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { BorderRadius, GlassStyles, Palette, Spacing } from '../constants/theme';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { BorderRadius, Palette, Spacing } from '../constants/theme';
 
-interface Props { bloodGroup: string; units: number; status: string; }
+interface Props {
+  group?: string;
+  units?: number;
+}
 
-export const LowStockAlertCard: React.FC<Props> = ({ bloodGroup, units, status }) => (
-  <View style={styles.card}>
-    <View style={styles.badge}><Text style={styles.badgeText}>{bloodGroup}</Text></View>
-    <View style={styles.info}>
-      <Text style={styles.units}>{units} units remaining</Text>
-      <Text style={styles.status}>{status} level</Text>
-    </View>
-    <Ionicons name="alert-circle" size={18} color={status === 'Critical' ? Palette.critical : Palette.warning} />
-  </View>
-);
+export const LowStockAlertCard: React.FC<Props> = ({
+  group = 'O-',
+  units = 6,
+}) => {
+  const router = useRouter();
+
+  return (
+    <Pressable
+      style={({ pressed }) => [styles.banner, pressed && styles.pressed]}
+      onPress={() =>
+        router.push({
+          pathname: '/stock/[bloodGroup]',
+          params: { bloodGroup: encodeURIComponent(group) },
+        })
+      }>
+      <View style={styles.leftGroup}>
+        <View style={styles.iconCircle}>
+          <Ionicons name="warning" size={14} color={Palette.critical} />
+        </View>
+        <Text style={styles.alertText}>
+          Low stock · <Text style={styles.boldGroup}>{group}</Text> ({units} units left)
+        </Text>
+      </View>
+
+      <View style={styles.actionRow}>
+        <Text style={styles.actionText}>View</Text>
+        <Ionicons name="chevron-forward" size={13} color={Palette.primary} />
+      </View>
+    </Pressable>
+  );
+};
 
 const styles = StyleSheet.create({
-  card: { ...GlassStyles.card, padding: Spacing.md, flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: Spacing.sm, borderColor: Palette.criticalBorder },
-  badge: { width: 40, height: 40, borderRadius: BorderRadius.sm, backgroundColor: Palette.primarySurface, borderWidth: 1, borderColor: Palette.borderAccent, justifyContent: 'center', alignItems: 'center' },
-  badgeText: { fontSize: 14, fontWeight: '800', color: Palette.primary },
-  info: { flex: 1 },
-  units: { fontSize: 14, fontWeight: '700', color: Palette.textPrimary },
-  status: { fontSize: 11, color: Palette.textMuted, marginTop: 1, textTransform: 'capitalize' },
+  banner: {
+    backgroundColor: '#FFF5F5',
+    borderRadius: BorderRadius.md,
+    paddingVertical: 10,
+    paddingHorizontal: Spacing.md,
+    borderWidth: 1,
+    borderColor: '#FED7D7',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: Spacing.xs,
+  },
+  pressed: {
+    opacity: 0.75,
+  },
+  leftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flex: 1,
+  },
+  iconCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: Palette.criticalBg,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  alertText: {
+    fontSize: 13,
+    color: Palette.textPrimary,
+    fontWeight: '500',
+  },
+  boldGroup: {
+    fontWeight: '800',
+    color: Palette.critical,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    marginLeft: 8,
+  },
+  actionText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Palette.primary,
+  },
 });

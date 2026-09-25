@@ -2,38 +2,87 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BorderRadius, Palette, Spacing } from '../constants/theme';
-import { Activity } from '../types/activity';
+import { ActivityItemType, ActivityType } from '../types/activity';
 
-interface Props { activity: Activity; isLast?: boolean; }
+interface Props {
+  activity: ActivityItemType;
+  isLast?: boolean;
+}
 
-const iconMap: Record<string, { name: string; color: string; bg: string }> = {
-  donation: { name: 'water', color: Palette.healthy, bg: Palette.healthyBg },
-  issue: { name: 'arrow-forward-circle', color: Palette.issued, bg: Palette.issuedBg },
-  request: { name: 'document-text', color: Palette.warning, bg: Palette.warningBg },
-  camp: { name: 'calendar', color: Palette.moderate, bg: Palette.moderateBg },
-  alert: { name: 'alert-circle', color: Palette.critical, bg: Palette.criticalBg },
-};
+export const ActivityItem: React.FC<Props> = ({ activity, isLast = false }) => {
+  const getIconConfig = (type: ActivityType): { name: keyof typeof Ionicons.glyphMap; color: string; bg: string } => {
+    switch (type) {
+      case 'issue':
+        return { name: 'arrow-redo', color: Palette.issued, bg: Palette.issuedBg };
+      case 'donor':
+        return { name: 'person-add', color: Palette.healthy, bg: Palette.healthyBg };
+      case 'crossmatch':
+        return { name: 'flask', color: Palette.quarantine, bg: Palette.quarantineBg };
+      case 'inventory':
+        return { name: 'cube', color: Palette.moderate, bg: Palette.moderateBg };
+      case 'request':
+        return { name: 'document-text', color: Palette.warning, bg: Palette.warningBg };
+      case 'alert':
+        return { name: 'alert-circle', color: Palette.critical, bg: Palette.criticalBg };
+    }
+  };
 
-export const ActivityItem: React.FC<Props> = ({ activity, isLast }) => {
-  const cfg = iconMap[activity.type] || iconMap.donation;
+  const iconConfig = getIconConfig(activity.type);
+
   return (
-    <View style={[styles.row, !isLast && styles.rowBorder]}>
-      <View style={[styles.iconWrap, { backgroundColor: cfg.bg }]}>
-        <Ionicons name={cfg.name as any} size={16} color={cfg.color} />
+    <View style={[styles.row, !isLast && styles.borderBottom]}>
+      <View style={[styles.iconWrap, { backgroundColor: iconConfig.bg }]}>
+        <Ionicons name={iconConfig.name} size={13} color={iconConfig.color} />
       </View>
-      <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={1}>{activity.title}</Text>
-        <Text style={styles.time}>{activity.time}</Text>
+
+      <View style={styles.textCol}>
+        <Text style={styles.titleText} numberOfLines={1}>
+          {activity.title}
+        </Text>
+        <Text style={styles.descText} numberOfLines={1}>
+          {activity.description}
+        </Text>
       </View>
+
+      <Text style={styles.timeText}>{activity.time.split(',')[0]}</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 },
-  rowBorder: { borderBottomWidth: 1, borderBottomColor: Palette.borderSubtle },
-  iconWrap: { width: 34, height: 34, borderRadius: BorderRadius.sm, justifyContent: 'center', alignItems: 'center' },
-  content: { flex: 1 },
-  title: { fontSize: 13, fontWeight: '600', color: Palette.textPrimary },
-  time: { fontSize: 11, color: Palette.textMuted, marginTop: 1 },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    gap: 10,
+  },
+  borderBottom: {
+    borderBottomWidth: 1,
+    borderBottomColor: Palette.borderSubtle,
+  },
+  iconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: BorderRadius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textCol: {
+    flex: 1,
+  },
+  titleText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: Palette.textPrimary,
+  },
+  descText: {
+    fontSize: 11,
+    color: Palette.textMuted,
+    marginTop: 1,
+  },
+  timeText: {
+    fontSize: 11,
+    color: Palette.textMuted,
+    fontWeight: '500',
+  },
 });
