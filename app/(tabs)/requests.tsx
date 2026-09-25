@@ -1,6 +1,9 @@
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   FlatList,
+  Pressable,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
@@ -12,13 +15,14 @@ import { FilterChips } from '../../src/components/FilterChips';
 import { Header } from '../../src/components/Header';
 import { RequestCard } from '../../src/components/RequestCard';
 import { SearchBar } from '../../src/components/SearchBar';
-import { Palette, Spacing } from '../../src/constants/theme';
+import { BorderRadius, Palette, Shadows, Spacing } from '../../src/constants/theme';
 import { requestService } from '../../src/services/requestService';
 import { BloodRequest, RequestStatus } from '../../src/types/request';
 
 type FilterStatus = 'All' | 'Pending' | 'Processing' | 'Ready' | 'Issued';
 
 export default function RequestsScreen() {
+  const router = useRouter();
   const [requests, setRequests] = useState<BloodRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<FilterStatus>('All');
@@ -73,7 +77,7 @@ export default function RequestsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header title="Blood Requests" subtitle="Hospital Ward Requisitions" />
+      <Header title="Blood Requests" subtitle="Requisitions & Tracking" />
 
       <FlatList
         data={filteredRequests}
@@ -94,27 +98,71 @@ export default function RequestsScreen() {
         }
         ListHeaderComponent={
           <View style={styles.headerComponent}>
-            {/* Search */}
-            <View style={styles.searchWrap}>
-              <SearchBar
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                placeholder="Search patient, ID, blood group..."
-              />
+            {/* New Requisition CTA */}
+            <Pressable
+              style={({ pressed }) => [styles.newReqBtn, pressed && { opacity: 0.85 }]}
+              onPress={() => router.push('/requisition' as any)}>
+              <View style={styles.newReqBtnLeft}>
+                <View style={styles.newReqIcon}>
+                  <Ionicons name="document-text" size={20} color={Palette.white} />
+                </View>
+                <View>
+                  <Text style={styles.newReqBtnTitle}>New Blood Requisition</Text>
+                  <Text style={styles.newReqBtnSub}>Fill form for hospital ward</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={Palette.white} />
+            </Pressable>
+
+            {/* Summary Row */}
+            <View style={styles.summaryRow}>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryNumber}>{requests.length}</Text>
+                <Text style={styles.summaryLabel}>Total</Text>
+              </View>
+              <View style={styles.summaryDivider} />
+              <View style={styles.summaryItem}>
+                <Text style={[styles.summaryNumber, { color: Palette.warning }]}>
+                  {pendingCount}
+                </Text>
+                <Text style={styles.summaryLabel}>Pending</Text>
+              </View>
+              <View style={styles.summaryDivider} />
+              <View style={styles.summaryItem}>
+                <Text style={[styles.summaryNumber, { color: Palette.healthy }]}>
+                  {requests.filter((r) => r.status === 'Issued' || r.status === 'Completed').length}
+                </Text>
+                <Text style={styles.summaryLabel}>Completed</Text>
+              </View>
             </View>
 
-            {/* Filter Chips: All | Pending | Processing | Ready | Issued */}
+            {/* Search */}
+            <SearchBar
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder="Search patient, ID, blood group..."
+            />
+
+            {/* Filter Chips */}
             <FilterChips
               options={filterOptions}
               selected={statusFilter}
               onSelect={setStatusFilter}
             />
 
-            <View style={styles.metaRow}>
-              <Text style={styles.pendingText}>
-                <Text style={styles.boldPending}>{pendingCount} pending</Text> requisitions
+            <View style={styles.countRow}>
+              <Text style={styles.countText}>
+                Showing{' '}
+                <Text style={{ fontWeight: '700', color: Palette.textPrimary }}>
+                  {filteredRequests.length}
+                </Text>{' '}
+                requisitions
               </Text>
-              <Text style={styles.totalText}>Showing {filteredRequests.length}</Text>
+              {pendingCount > 0 && (
+                <View style={styles.pendingBadge}>
+                  <Text style={styles.pendingBadgeText}>{pendingCount} pending</Text>
+                </View>
+              )}
             </View>
           </View>
         }
@@ -148,27 +196,101 @@ const styles = StyleSheet.create({
   },
   headerComponent: {
     marginBottom: Spacing.xs,
+    gap: Spacing.sm,
   },
-  searchWrap: {
-    marginBottom: 4,
+
+  // New Requisition CTA
+  newReqBtn: {
+    backgroundColor: Palette.primary,
+    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: Spacing.xs,
+    ...Shadows.card,
   },
-  metaRow: {
+  newReqBtnLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  newReqIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  newReqBtnTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Palette.white,
+  },
+  newReqBtnSub: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.75)',
+    marginTop: 1,
+  },
+
+  // Summary Row
+  summaryRow: {
+    backgroundColor: Palette.white,
+    borderRadius: BorderRadius.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    ...Shadows.subtle,
+  },
+  summaryItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  summaryNumber: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: Palette.textPrimary,
+    letterSpacing: -0.4,
+  },
+  summaryLabel: {
+    fontSize: 11,
+    color: Palette.textMuted,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  summaryDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: Palette.borderSubtle,
+  },
+
+  // Count Row
+  countRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 4,
     paddingHorizontal: 2,
+    marginTop: 2,
   },
-  pendingText: {
-    fontSize: 12,
-    color: Palette.textSecondary,
-  },
-  boldPending: {
-    fontWeight: '700',
-    color: Palette.warning,
-  },
-  totalText: {
+  countText: {
     fontSize: 12,
     color: Palette.textMuted,
+  },
+  pendingBadge: {
+    backgroundColor: Palette.warningBg,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Palette.warningBorder,
+  },
+  pendingBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Palette.warning,
   },
 });

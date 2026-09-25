@@ -63,6 +63,7 @@ function RootLayoutNav() {
         <Stack.Screen name="requests/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="camps/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="camps/create" options={{ headerShown: false }} />
+        <Stack.Screen name="requisition" options={{ headerShown: false }} />
         <Stack.Screen
           name="notifications"
           options={{
