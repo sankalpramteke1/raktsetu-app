@@ -11,11 +11,7 @@ interface HeaderProps {
   showGreeting?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({
-  title,
-  subtitle,
-  showGreeting = false,
-}) => {
+export const Header: React.FC<HeaderProps> = ({ title, subtitle, showGreeting = false }) => {
   const router = useRouter();
   const [unreadCount, setUnreadCount] = useState(3);
 
@@ -39,7 +35,9 @@ export const Header: React.FC<HeaderProps> = ({
             <View style={styles.brandRow}>
               <View style={styles.brandDot} />
               <Text style={styles.brandName}>RaktSetu</Text>
-              <Text style={styles.centerTag}>· Durg Blood Center</Text>
+              <View style={styles.centerBadge}>
+                <Text style={styles.centerTag}>Durg</Text>
+              </View>
             </View>
           </>
         ) : (
@@ -59,8 +57,12 @@ export const Header: React.FC<HeaderProps> = ({
           onPress={() => router.push('/notifications')}
           accessibilityLabel="Notifications"
           hitSlop={8}>
-          <Ionicons name="notifications-outline" size={20} color={Palette.textPrimary} />
-          {unreadCount > 0 && <View style={styles.badgeDot} />}
+          <Ionicons name="notifications-outline" size={19} color={Palette.textPrimary} />
+          {unreadCount > 0 && (
+            <View style={styles.badgeDot}>
+              <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+            </View>
+          )}
         </Pressable>
 
         <Pressable
@@ -68,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({
           onPress={() => router.push('/profile')}
           accessibilityLabel="Profile"
           hitSlop={8}>
-          <Ionicons name="person-outline" size={17} color={Palette.primary} />
+          <Ionicons name="person" size={16} color={Palette.primary} />
         </Pressable>
       </View>
     </View>
@@ -77,87 +79,108 @@ export const Header: React.FC<HeaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Palette.white,
+    backgroundColor: Palette.background,
     paddingHorizontal: Spacing.screenPadding,
     paddingTop: Spacing.sm + 2,
-    paddingBottom: Spacing.sm + 4,
+    paddingBottom: Spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
     borderBottomColor: Palette.borderSubtle,
   },
-  leftCol: {
-    flex: 1,
-    marginRight: 12,
-  },
+  leftCol: { flex: 1, marginRight: 12 },
   greetingText: {
     fontSize: 12,
     color: Palette.textMuted,
     fontWeight: '500',
-    marginBottom: 1,
+    marginBottom: 2,
   },
   brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   brandDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: Palette.primary,
+    shadowColor: Palette.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 6,
+    elevation: 4,
   },
   brandName: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800',
     color: Palette.textPrimary,
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
+  },
+  centerBadge: {
+    backgroundColor: Palette.primarySurface,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Palette.borderAccent,
   },
   centerTag: {
-    fontSize: 12,
-    color: Palette.textMuted,
-    fontWeight: '500',
+    fontSize: 10,
+    color: Palette.primary,
+    fontWeight: '700',
   },
   subText: {
     fontSize: 11,
     color: Palette.textMuted,
-    marginTop: 1,
+    marginTop: 2,
+    marginLeft: 16,
   },
   rightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   iconBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: BorderRadius.full,
-    backgroundColor: Palette.borderSubtle,
+    width: 40,
+    height: 40,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Palette.surface,
+    borderWidth: 1,
+    borderColor: Palette.border,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
   },
   avatarBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: BorderRadius.full,
+    width: 40,
+    height: 40,
+    borderRadius: BorderRadius.md,
     backgroundColor: Palette.primarySurface,
+    borderWidth: 1,
+    borderColor: Palette.borderAccent,
     justifyContent: 'center',
     alignItems: 'center',
   },
   badgeDot: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
     backgroundColor: Palette.primary,
-    borderWidth: 1.5,
-    borderColor: Palette.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: Palette.background,
   },
-  pressed: {
-    opacity: 0.6,
+  badgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#FFF',
   },
+  pressed: { opacity: 0.6 },
 });

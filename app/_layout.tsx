@@ -1,25 +1,21 @@
-﻿import { useFonts } from 'expo-font';
+import { useFonts } from 'expo-font';
 import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { Palette } from '../src/constants/theme';
 import { useAppUpdate } from '../src/hooks/useAppUpdate';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
   initialRouteName: '(tabs)',
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
-  // Automatically check for new RaktSetu APK release on launch
   useAppUpdate();
 
   const [loaded, error] = useFonts({
@@ -27,40 +23,35 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (error) {
-      console.warn('Font loading error:', error);
-    }
+    if (error) console.warn('Font loading error:', error);
   }, [error]);
 
   useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync().catch(() => {});
-    }
+    if (loaded || error) SplashScreen.hideAsync().catch(() => {});
   }, [loaded, error]);
 
-  if (!loaded && !error) {
-    return null;
-  }
-
+  if (!loaded && !error) return null;
   return <RootLayoutNav />;
 }
 
 const AppTheme = {
   ...DefaultTheme,
+  dark: true,
   colors: {
     ...DefaultTheme.colors,
     primary: Palette.primary,
     background: Palette.background,
-    card: Palette.white,
+    card: Palette.background,
     text: Palette.textPrimary,
-    border: Palette.borderLight,
+    border: Palette.border,
   },
 };
 
 function RootLayoutNav() {
   return (
     <ThemeProvider value={AppTheme}>
-      <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+      <StatusBar style="light" />
+      <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', contentStyle: { backgroundColor: Palette.background } }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="stock/[bloodGroup]" options={{ headerShown: false }} />
         <Stack.Screen name="donors/[id]" options={{ headerShown: false }} />
@@ -68,22 +59,8 @@ function RootLayoutNav() {
         <Stack.Screen name="camps/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="camps/create" options={{ headerShown: false }} />
         <Stack.Screen name="requisition" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="notifications"
-          options={{
-            headerShown: false,
-            presentation: 'modal',
-            animation: 'slide_from_bottom',
-          }}
-        />
-        <Stack.Screen
-          name="profile"
-          options={{
-            headerShown: false,
-            presentation: 'modal',
-            animation: 'slide_from_bottom',
-          }}
-        />
+        <Stack.Screen name="notifications" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="profile" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} />
       </Stack>
     </ThemeProvider>
   );

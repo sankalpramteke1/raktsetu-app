@@ -1,72 +1,26 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BorderRadius, Palette } from '../constants/theme';
-import { CampStatus } from '../types/camp';
 
-interface Props {
-  status: CampStatus;
-  size?: 'small' | 'medium';
-}
+interface Props { status: string; }
 
-export const CampStatusBadge: React.FC<Props> = ({ status, size = 'medium' }) => {
-  const getStyle = () => {
-    switch (status) {
-      case 'Ongoing':
-        return { bg: Palette.healthyBg, text: Palette.healthy, border: Palette.healthyBorder };
-      case 'Upcoming':
-        return { bg: Palette.moderateBg, text: Palette.moderate, border: Palette.moderateBorder };
-      case 'Completed':
-        return { bg: Palette.borderSubtle, text: Palette.textSecondary, border: Palette.border };
-      case 'Cancelled':
-        return { bg: Palette.criticalBg, text: Palette.critical, border: Palette.criticalBorder };
-    }
-  };
-
-  const style = getStyle();
-  const isSmall = size === 'small';
+export const CampStatusBadge: React.FC<Props> = ({ status }) => {
+  const isLive = status === 'Ongoing';
+  const isUpcoming = status === 'Upcoming';
+  const bg = isLive ? Palette.healthyBg : isUpcoming ? Palette.moderateBg : Palette.surface;
+  const color = isLive ? Palette.healthy : isUpcoming ? Palette.moderate : Palette.textMuted;
+  const border = isLive ? Palette.healthyBorder : isUpcoming ? Palette.moderateBorder : Palette.border;
 
   return (
-    <View
-      style={[
-        styles.badge,
-        { backgroundColor: style.bg, borderColor: style.border },
-        isSmall && styles.badgeSmall,
-      ]}>
-      {status === 'Ongoing' && <View style={styles.liveDot} />}
-      <Text style={[styles.text, { color: style.text }, isSmall && styles.textSmall]}>
-        {status}
-      </Text>
+    <View style={[styles.badge, { backgroundColor: bg, borderColor: border }]}>
+      {isLive && <View style={[styles.dot, { backgroundColor: color, shadowColor: color, shadowOpacity: 0.6, shadowRadius: 4, elevation: 2 }]} />}
+      <Text style={[styles.text, { color }]}>{isLive ? 'LIVE NOW' : status.toUpperCase()}</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: BorderRadius.sm,
-    borderWidth: 1,
-    alignSelf: 'flex-start',
-    gap: 4,
-  },
-  badgeSmall: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  liveDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: Palette.healthy,
-  },
-  text: {
-    fontSize: 11,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-  },
-  textSmall: {
-    fontSize: 10,
-  },
+  badge: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 3, borderRadius: BorderRadius.xs, borderWidth: 1 },
+  dot: { width: 6, height: 6, borderRadius: 3, shadowOffset: { width: 0, height: 0 } },
+  text: { fontSize: 10, fontWeight: '700', letterSpacing: 0.3 },
 });
