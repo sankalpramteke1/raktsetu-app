@@ -16,53 +16,64 @@ export const TodayOverviewCard: React.FC<Props> = ({
   newDonors = 8,
   pendingRequests = 7,
 }) => {
+  const todayStr = new Date().toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+
   return (
     <View style={styles.card}>
       <View style={styles.headerRow}>
-        <Text style={styles.cardTitle}>Today's Overview</Text>
+        <View style={styles.headerTitleRow}>
+          <View style={styles.pulseIndicator} />
+          <Text style={styles.cardTitle}>Today's Operational Pulse</Text>
+        </View>
         <View style={styles.dateBadge}>
-          <Ionicons name="time-outline" size={11} color={Palette.textMuted} />
-          <Text style={styles.dateText}>Live Sync</Text>
+          <Ionicons name="calendar-outline" size={12} color={Palette.textSecondary} />
+          <Text style={styles.dateText}>{todayStr}</Text>
         </View>
       </View>
 
       <View style={styles.grid}>
-        <View style={styles.cell}>
+        <View style={styles.statItem}>
           <View style={[styles.iconWrap, { backgroundColor: Palette.healthyBg }]}>
-            <Ionicons name="water" size={16} color={Palette.healthy} />
+            <Ionicons name="arrow-down-circle" size={18} color={Palette.healthy} />
           </View>
-          <Text style={styles.metricVal}>{collectedUnits}</Text>
-          <Text style={styles.metricLabel}>Units Collected</Text>
+          <View style={styles.statInfo}>
+            <Text style={styles.statVal}>{collectedUnits}</Text>
+            <Text style={styles.statLbl}>Units Collected</Text>
+          </View>
         </View>
 
-        <View style={styles.dividerV} />
-
-        <View style={styles.cell}>
+        <View style={styles.statItem}>
           <View style={[styles.iconWrap, { backgroundColor: Palette.issuedBg }]}>
-            <Ionicons name="arrow-redo" size={16} color={Palette.issued} />
+            <Ionicons name="arrow-up-circle" size={18} color={Palette.issued} />
           </View>
-          <Text style={styles.metricVal}>{issuedUnits}</Text>
-          <Text style={styles.metricLabel}>Units Issued</Text>
+          <View style={styles.statInfo}>
+            <Text style={styles.statVal}>{issuedUnits}</Text>
+            <Text style={styles.statLbl}>Units Issued</Text>
+          </View>
         </View>
 
-        <View style={styles.dividerV} />
+        <View style={styles.statItem}>
+          <View style={[styles.iconWrap, { backgroundColor: Palette.primarySurface }]}>
+            <Ionicons name="people" size={18} color={Palette.primary} />
+          </View>
+          <View style={styles.statInfo}>
+            <Text style={styles.statVal}>{newDonors}</Text>
+            <Text style={styles.statLbl}>New Donors</Text>
+          </View>
+        </View>
 
-        <View style={styles.cell}>
+        <View style={styles.statItem}>
           <View style={[styles.iconWrap, { backgroundColor: Palette.moderateBg }]}>
-            <Ionicons name="person-add" size={16} color={Palette.moderate} />
+            <Ionicons name="git-pull-request" size={18} color={Palette.moderate} />
           </View>
-          <Text style={styles.metricVal}>{newDonors}</Text>
-          <Text style={styles.metricLabel}>New Donors</Text>
-        </View>
-
-        <View style={styles.dividerV} />
-
-        <View style={styles.cell}>
-          <View style={[styles.iconWrap, { backgroundColor: Palette.warningBg }]}>
-            <Ionicons name="hourglass" size={16} color={Palette.warning} />
+          <View style={styles.statInfo}>
+            <Text style={styles.statVal}>{pendingRequests}</Text>
+            <Text style={styles.statLbl}>Pending Requests</Text>
           </View>
-          <Text style={[styles.metricVal, { color: Palette.warning }]}>{pendingRequests}</Text>
-          <Text style={styles.metricLabel}>Pending Reqs</Text>
         </View>
       </View>
     </View>
@@ -72,11 +83,11 @@ export const TodayOverviewCard: React.FC<Props> = ({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: Palette.white,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Palette.border,
-    ...Shadows.subtle,
+    borderColor: Palette.borderLight,
+    ...Shadows.card,
   },
   headerRow: {
     flexDirection: 'row',
@@ -84,54 +95,71 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.md,
   },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
+  pulseIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Palette.healthy,
+  },
   cardTitle: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 15,
+    fontWeight: '800',
     color: Palette.textPrimary,
+    letterSpacing: -0.3,
   },
   dateBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 4,
+    backgroundColor: Palette.backgroundSubtle,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
   },
   dateText: {
     fontSize: 11,
-    color: Palette.textMuted,
-    fontWeight: '500',
+    fontWeight: '600',
+    color: Palette.textSecondary,
   },
   grid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 12,
   },
-  cell: {
-    flex: 1,
+  statItem: {
+    width: '47%',
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
+    backgroundColor: Palette.background,
+    padding: 10,
+    borderRadius: BorderRadius.md,
   },
   iconWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: BorderRadius.full,
+    width: 36,
+    height: 36,
+    borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 6,
   },
-  metricVal: {
-    fontSize: 20,
+  statInfo: {
+    flex: 1,
+  },
+  statVal: {
+    fontSize: 18,
     fontWeight: '800',
     color: Palette.textPrimary,
-    letterSpacing: -0.4,
+    letterSpacing: -0.3,
   },
-  metricLabel: {
+  statLbl: {
     fontSize: 10,
-    color: Palette.textMuted,
     fontWeight: '600',
-    marginTop: 2,
-    textAlign: 'center',
-  },
-  dividerV: {
-    width: 1,
-    height: 36,
-    backgroundColor: Palette.borderSubtle,
+    color: Palette.textMuted,
+    marginTop: 1,
   },
 });

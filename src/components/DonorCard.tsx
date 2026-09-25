@@ -12,7 +12,6 @@ interface Props {
 export const DonorCard: React.FC<Props> = ({ donor }) => {
   const router = useRouter();
 
-  // Extract initials (e.g. "Rahul Sharma" -> "RS")
   const getInitials = (name: string) => {
     const parts = name.trim().split(/\s+/);
     if (parts.length >= 2) {
@@ -53,7 +52,7 @@ export const DonorCard: React.FC<Props> = ({ donor }) => {
         <View style={styles.bloodBadge}>
           <Text style={styles.bloodText}>{donor.bloodGroup}</Text>
         </View>
-        <Ionicons name="chevron-forward" size={15} color={Palette.textMuted} />
+        <Ionicons name="chevron-forward" size={16} color={Palette.textMuted} />
       </View>
     </Pressable>
   );
@@ -66,29 +65,30 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: Spacing.md,
     borderWidth: 1,
-    borderColor: Palette.border,
-    ...Shadows.subtle,
-    marginBottom: Spacing.sm,
+    borderColor: Palette.borderLight,
+    ...Shadows.card,
+    marginBottom: Spacing.sm + 2,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
   pressed: {
-    opacity: 0.75,
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
   avatar: {
     width: 42,
     height: 42,
     borderRadius: BorderRadius.full,
-    backgroundColor: Palette.borderSubtle,
+    backgroundColor: Palette.primaryMuted,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Palette.border,
+    borderColor: '#FECDD3',
   },
   avatarText: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '800',
     color: Palette.primary,
   },
   infoCol: {
@@ -96,8 +96,9 @@ const styles = StyleSheet.create({
   },
   nameText: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
     color: Palette.textPrimary,
+    letterSpacing: -0.3,
     marginBottom: 2,
   },
   metaText: {
@@ -114,10 +115,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   bloodBadge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: BorderRadius.sm,
     backgroundColor: Palette.primarySurface,
+    borderWidth: 1,
+    borderColor: '#FECDD3',
   },
   bloodText: {
     fontSize: 13,

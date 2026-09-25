@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { BorderRadius, Palette, Spacing } from '../constants/theme';
+import { BorderRadius, Palette, Shadows, Spacing } from '../constants/theme';
 
 interface Props {
   group?: string;
@@ -34,7 +34,7 @@ export const LowStockAlertCard: React.FC<Props> = ({
       </View>
 
       <View style={styles.actionRow}>
-        <Text style={styles.actionText}>View</Text>
+        <Text style={styles.actionText}>Restock</Text>
         <Ionicons name="chevron-forward" size={13} color={Palette.primary} />
       </View>
     </Pressable>
@@ -43,19 +43,21 @@ export const LowStockAlertCard: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   banner: {
-    backgroundColor: '#FFF5F5',
+    backgroundColor: Palette.criticalBg,
     borderRadius: BorderRadius.md,
     paddingVertical: 10,
     paddingHorizontal: Spacing.md,
     borderWidth: 1,
-    borderColor: '#FED7D7',
+    borderColor: Palette.criticalBorder,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginVertical: Spacing.xs,
+    ...Shadows.subtle,
   },
   pressed: {
-    opacity: 0.75,
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
   leftGroup: {
     flexDirection: 'row',
@@ -64,17 +66,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: Palette.criticalBg,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: Palette.white,
     justifyContent: 'center',
     alignItems: 'center',
   },
   alertText: {
     fontSize: 13,
     color: Palette.textPrimary,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   boldGroup: {
     fontWeight: '800',
@@ -83,11 +85,15 @@ const styles = StyleSheet.create({
   actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: 3,
     marginLeft: 8,
+    backgroundColor: Palette.white,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
   },
   actionText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
     color: Palette.primary,
   },

@@ -15,11 +15,11 @@ export const RequestCard: React.FC<Props> = ({ request }) => {
   const getPriorityStyle = (priority: RequestPriority) => {
     switch (priority) {
       case 'Critical':
-        return { bg: Palette.criticalBg, text: Palette.critical };
+        return { bg: Palette.criticalBg, text: Palette.critical, border: Palette.criticalBorder };
       case 'Urgent':
-        return { bg: Palette.warningBg, text: Palette.warning };
+        return { bg: Palette.warningBg, text: Palette.warning, border: Palette.warningBorder };
       case 'Normal':
-        return { bg: Palette.borderSubtle, text: Palette.textSecondary };
+        return { bg: Palette.backgroundSubtle, text: Palette.textSecondary, border: Palette.border };
     }
   };
 
@@ -62,7 +62,7 @@ export const RequestCard: React.FC<Props> = ({ request }) => {
       <View style={styles.topRow}>
         <View style={styles.idGroup}>
           <Text style={styles.requestIdText}>{request.requestId}</Text>
-          <View style={[styles.priorityPill, { backgroundColor: priorityStyle.bg }]}>
+          <View style={[styles.priorityPill, { backgroundColor: priorityStyle.bg, borderColor: priorityStyle.border }]}>
             <Text style={[styles.priorityText, { color: priorityStyle.text }]}>
               {request.priority}
             </Text>
@@ -77,7 +77,6 @@ export const RequestCard: React.FC<Props> = ({ request }) => {
       </View>
 
       <View style={styles.bottomRow}>
-        {/* Blood Group & Units */}
         <View style={styles.bloodCol}>
           <View style={styles.bloodPill}>
             <Text style={styles.bloodText}>{request.bloodGroup}</Text>
@@ -87,12 +86,11 @@ export const RequestCard: React.FC<Props> = ({ request }) => {
           </Text>
         </View>
 
-        {/* Patient Name & ID */}
         <View style={styles.patientCol}>
           <Text style={styles.patientName} numberOfLines={1}>
             {request.patientName}
           </Text>
-          <Text style={styles.patientId}>ID: {request.patientId}</Text>
+          <Text style={styles.patientId}>{request.ward} • {request.department}</Text>
         </View>
 
         <Ionicons name="chevron-forward" size={16} color={Palette.textMuted} />
@@ -107,16 +105,17 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Palette.border,
-    ...Shadows.subtle,
-    marginBottom: Spacing.sm,
+    borderColor: Palette.borderLight,
+    ...Shadows.card,
+    marginBottom: Spacing.sm + 2,
   },
   criticalAccent: {
-    borderLeftWidth: 3,
+    borderLeftWidth: 4,
     borderLeftColor: Palette.critical,
   },
   pressed: {
-    opacity: 0.75,
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
   topRow: {
     flexDirection: 'row',
@@ -127,7 +126,7 @@ const styles = StyleSheet.create({
   idGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 7,
   },
   requestIdText: {
     fontSize: 13,
@@ -135,9 +134,10 @@ const styles = StyleSheet.create({
     color: Palette.textPrimary,
   },
   priorityPill: {
-    paddingHorizontal: 6,
+    paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: BorderRadius.xs,
+    borderWidth: 1,
   },
   priorityText: {
     fontSize: 10,
@@ -161,13 +161,15 @@ const styles = StyleSheet.create({
   bloodCol: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 7,
   },
   bloodPill: {
     backgroundColor: Palette.primarySurface,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
     borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+    borderColor: '#FECDD3',
   },
   bloodText: {
     fontSize: 14,
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
   },
   unitsText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
     color: Palette.textSecondary,
   },
   patientCol: {

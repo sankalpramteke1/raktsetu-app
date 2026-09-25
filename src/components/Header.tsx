@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { BorderRadius, Palette, Spacing } from '../constants/theme';
+import { BorderRadius, Palette, Shadows, Spacing } from '../constants/theme';
 import { notificationService } from '../services/notificationService';
 
 interface HeaderProps {
@@ -25,9 +25,9 @@ export const Header: React.FC<HeaderProps> = ({
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return 'Good morning 👋';
+    if (hour < 17) return 'Good afternoon ☀️';
+    return 'Good evening 🌙';
   };
 
   return (
@@ -37,15 +37,22 @@ export const Header: React.FC<HeaderProps> = ({
           <>
             <Text style={styles.greetingText}>{getGreeting()}</Text>
             <View style={styles.brandRow}>
-              <View style={styles.brandDot} />
+              <View style={styles.brandBadge}>
+                <Ionicons name="water" size={14} color={Palette.white} />
+              </View>
               <Text style={styles.brandName}>RaktSetu</Text>
-              <Text style={styles.centerTag}>· Durg Blood Center</Text>
+              <View style={styles.liveTag}>
+                <View style={styles.liveDot} />
+                <Text style={styles.liveTagText}>Durg Blood Center</Text>
+              </View>
             </View>
           </>
         ) : (
           <>
             <View style={styles.brandRow}>
-              <View style={styles.brandDot} />
+              <View style={styles.brandBadge}>
+                <Ionicons name="water" size={14} color={Palette.white} />
+              </View>
               <Text style={styles.brandName}>{title || 'RaktSetu'}</Text>
             </View>
             <Text style={styles.subText}>{subtitle || 'Durg District Blood Center'}</Text>
@@ -59,8 +66,12 @@ export const Header: React.FC<HeaderProps> = ({
           onPress={() => router.push('/notifications')}
           accessibilityLabel="Notifications"
           hitSlop={8}>
-          <Ionicons name="notifications-outline" size={20} color={Palette.textPrimary} />
-          {unreadCount > 0 && <View style={styles.badgeDot} />}
+          <Ionicons name="notifications-outline" size={19} color={Palette.textPrimary} />
+          {unreadCount > 0 && (
+            <View style={styles.badgeDot}>
+              <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+            </View>
+          )}
         </Pressable>
 
         <Pressable
@@ -68,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
           onPress={() => router.push('/profile')}
           accessibilityLabel="Profile"
           hitSlop={8}>
-          <Ionicons name="person-outline" size={17} color={Palette.primary} />
+          <Ionicons name="person" size={16} color={Palette.primary} />
         </Pressable>
       </View>
     </View>
@@ -79,13 +90,14 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Palette.white,
     paddingHorizontal: Spacing.screenPadding,
-    paddingTop: Spacing.sm + 2,
-    paddingBottom: Spacing.sm + 4,
+    paddingTop: Spacing.sm + 4,
+    paddingBottom: Spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: Palette.borderSubtle,
+    borderBottomColor: Palette.borderLight,
+    ...Shadows.subtle,
   },
   leftCol: {
     flex: 1,
@@ -93,71 +105,106 @@ const styles = StyleSheet.create({
   },
   greetingText: {
     fontSize: 12,
-    color: Palette.textMuted,
-    fontWeight: '500',
-    marginBottom: 1,
+    color: Palette.textSecondary,
+    fontWeight: '600',
+    marginBottom: 3,
   },
   brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 7,
   },
-  brandDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
+  brandBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 8,
     backgroundColor: Palette.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.subtle,
   },
   brandName: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '800',
     color: Palette.textPrimary,
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
   },
-  centerTag: {
-    fontSize: 12,
-    color: Palette.textMuted,
-    fontWeight: '500',
+  liveTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Palette.healthyBg,
+    paddingHorizontal: 8,
+    paddingVertical: 2.5,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Palette.healthyBorder,
+    gap: 4,
+  },
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Palette.healthy,
+  },
+  liveTagText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Palette.healthy,
   },
   subText: {
-    fontSize: 11,
+    fontSize: 12,
     color: Palette.textMuted,
-    marginTop: 1,
+    marginTop: 2,
+    fontWeight: '500',
   },
   rightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   iconBtn: {
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
     borderRadius: BorderRadius.full,
-    backgroundColor: Palette.borderSubtle,
+    backgroundColor: Palette.backgroundSubtle,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Palette.borderLight,
     position: 'relative',
   },
   avatarBtn: {
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
     borderRadius: BorderRadius.full,
     backgroundColor: Palette.primarySurface,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#FECDD3',
   },
   badgeDot: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
+    top: -2,
+    right: -2,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
     backgroundColor: Palette.primary,
-    borderWidth: 1.5,
+    borderWidth: 2,
     borderColor: Palette.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 2,
+  },
+  badgeText: {
+    fontSize: 9,
+    color: Palette.white,
+    fontWeight: '800',
+    lineHeight: 11,
   },
   pressed: {
-    opacity: 0.6,
+    opacity: 0.7,
+    transform: [{ scale: 0.96 }],
   },
 });

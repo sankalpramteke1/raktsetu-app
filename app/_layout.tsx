@@ -1,3 +1,4 @@
+import { StatusBar } from 'expo-status-bar';
 ﻿import { useFonts } from 'expo-font';
 import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -60,6 +61,7 @@ const AppTheme = {
 function RootLayoutNav() {
   return (
     <ThemeProvider value={AppTheme}>
+      <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="stock/[bloodGroup]" options={{ headerShown: false }} />

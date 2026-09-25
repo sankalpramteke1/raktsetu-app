@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform, StyleSheet } from 'react-native';
-import { Palette, Shadows } from '../../src/constants/theme';
+import { Platform, StyleSheet, View } from 'react-native';
+import { BorderRadius, Palette, Shadows } from '../../src/constants/theme';
 
 export default function TabLayout() {
   return (
@@ -20,7 +20,9 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'home' : 'home-outline'} size={22} color={color} />
+            <View style={[styles.iconWrapper, focused && styles.iconWrapperActive]}>
+              <Ionicons name={focused ? 'home' : 'home-outline'} size={21} color={color} />
+            </View>
           ),
         }}
       />
@@ -29,7 +31,9 @@ export default function TabLayout() {
         options={{
           title: 'Stock',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'water' : 'water-outline'} size={22} color={color} />
+            <View style={[styles.iconWrapper, focused && styles.iconWrapperActive]}>
+              <Ionicons name={focused ? 'water' : 'water-outline'} size={21} color={color} />
+            </View>
           ),
         }}
       />
@@ -38,7 +42,9 @@ export default function TabLayout() {
         options={{
           title: 'Camps',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={22} color={color} />
+            <View style={[styles.iconWrapper, focused && styles.iconWrapperActive]}>
+              <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={21} color={color} />
+            </View>
           ),
         }}
       />
@@ -54,20 +60,28 @@ export default function TabLayout() {
         options={{
           title: 'Requests',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'document-text' : 'document-text-outline'}
-              size={22}
-              color={color}
-            />
+            <View style={[styles.iconWrapper, focused && styles.iconWrapperActive]}>
+              <Ionicons
+                name={focused ? 'git-pull-request' : 'git-pull-request-outline'}
+                size={21}
+                color={color}
+              />
+            </View>
           ),
         }}
       />
       <Tabs.Screen
         name="reports"
         options={{
-          title: 'Reports',
+          title: 'Analytics',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'bar-chart' : 'bar-chart-outline'} size={22} color={color} />
+            <View style={[styles.iconWrapper, focused && styles.iconWrapperActive]}>
+              <Ionicons
+                name={focused ? 'pie-chart' : 'pie-chart-outline'}
+                size={21}
+                color={color}
+              />
+            </View>
           ),
         }}
       />
@@ -80,17 +94,28 @@ const styles = StyleSheet.create({
     backgroundColor: Palette.white,
     borderTopWidth: 1,
     borderTopColor: Palette.borderLight,
-    height: Platform.OS === 'ios' ? 88 : 64,
-    paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+    height: Platform.OS === 'ios' ? 88 : 66,
+    paddingBottom: Platform.OS === 'ios' ? 28 : 10,
     paddingTop: 8,
-    ...Shadows.card,
+    ...Shadows.nav,
   },
   tabBarLabel: {
     fontSize: 11,
     fontWeight: '700',
     marginTop: 2,
+    letterSpacing: -0.1,
   },
   tabBarItem: {
     paddingVertical: 2,
+  },
+  iconWrapper: {
+    width: 38,
+    height: 30,
+    borderRadius: BorderRadius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconWrapperActive: {
+    backgroundColor: Palette.primarySurface,
   },
 });

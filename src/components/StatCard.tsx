@@ -24,15 +24,24 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   return (
     <Pressable
-      style={({ pressed }) => [styles.card, pressed && onPress && styles.pressed]}
+      style={({ pressed }) => [
+        styles.card,
+        onPress && pressed && styles.pressed,
+      ]}
       onPress={onPress}
       disabled={!onPress}>
-      <View style={[styles.iconWrap, { backgroundColor: iconBgColor }]}>
-        <Ionicons name={iconName} size={16} color={iconColor} />
+      <View style={styles.topRow}>
+        <View style={[styles.iconContainer, { backgroundColor: iconBgColor }]}>
+          <Ionicons name={iconName} size={20} color={iconColor} />
+        </View>
+        {subtitle ? (
+          <View style={styles.subtitleBadge}>
+            <Text style={styles.subtitleText}>{subtitle}</Text>
+          </View>
+        ) : null}
       </View>
-      <Text style={styles.valText}>{value}</Text>
-      <Text style={styles.titleText}>{title}</Text>
-      {subtitle && <Text style={styles.subText}>{subtitle}</Text>}
+      <Text style={styles.value}>{value}</Text>
+      <Text style={styles.title}>{title}</Text>
     </Pressable>
   );
 };
@@ -43,37 +52,48 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Palette.border,
-    ...Shadows.subtle,
+    borderColor: Palette.borderLight,
+    ...Shadows.card,
     flex: 1,
-    minWidth: 130,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  iconContainer: {
+    width: 38,
+    height: 38,
+    borderRadius: BorderRadius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  subtitleBadge: {
+    backgroundColor: Palette.backgroundSubtle,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.xs,
+  },
+  subtitleText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: Palette.textSecondary,
+  },
+  value: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: Palette.textPrimary,
+    letterSpacing: -0.5,
+    marginBottom: 2,
+  },
+  title: {
+    fontSize: 12,
+    color: Palette.textSecondary,
+    fontWeight: '600',
   },
   pressed: {
     opacity: 0.8,
-  },
-  iconWrap: {
-    width: 30,
-    height: 30,
-    borderRadius: BorderRadius.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  valText: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: Palette.textPrimary,
-    letterSpacing: -0.4,
-  },
-  titleText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Palette.textSecondary,
-    marginTop: 2,
-  },
-  subText: {
-    fontSize: 10,
-    color: Palette.textMuted,
-    marginTop: 1,
+    transform: [{ scale: 0.98 }],
   },
 });

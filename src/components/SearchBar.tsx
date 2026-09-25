@@ -3,14 +3,14 @@ import React from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { BorderRadius, Palette, Spacing } from '../constants/theme';
 
-interface Props {
+interface SearchBarProps {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
   onClear?: () => void;
 }
 
-export const SearchBar: React.FC<Props> = ({
+export const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onChangeText,
   placeholder = 'Search...',
@@ -18,7 +18,7 @@ export const SearchBar: React.FC<Props> = ({
 }) => {
   return (
     <View style={styles.container}>
-      <Ionicons name="search-outline" size={17} color={Palette.textMuted} style={styles.searchIcon} />
+      <Ionicons name="search-outline" size={18} color={Palette.textMuted} style={styles.searchIcon} />
       <TextInput
         style={styles.input}
         value={value}
@@ -26,21 +26,13 @@ export const SearchBar: React.FC<Props> = ({
         placeholder={placeholder}
         placeholderTextColor={Palette.textMuted}
         returnKeyType="search"
-        autoCapitalize="none"
-        autoCorrect={false}
         clearButtonMode="while-editing"
       />
-      {value.length > 0 && (
-        <Pressable
-          style={styles.clearBtn}
-          onPress={() => {
-            onChangeText('');
-            if (onClear) onClear();
-          }}
-          hitSlop={8}>
-          <Ionicons name="close-circle" size={16} color={Palette.textMuted} />
+      {value.length > 0 && onClear ? (
+        <Pressable onPress={onClear} hitSlop={8} style={styles.clearBtn}>
+          <Ionicons name="close-circle" size={18} color={Palette.textMuted} />
         </Pressable>
-      )}
+      ) : null}
     </View>
   );
 };
@@ -52,19 +44,18 @@ const styles = StyleSheet.create({
     backgroundColor: Palette.white,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
-    height: 40,
+    height: 44,
     borderWidth: 1,
     borderColor: Palette.border,
   },
   searchIcon: {
-    marginRight: 6,
+    marginRight: 8,
   },
   input: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 14,
     color: Palette.textPrimary,
-    height: '100%',
-    padding: 0,
+    paddingVertical: 0,
   },
   clearBtn: {
     padding: 2,

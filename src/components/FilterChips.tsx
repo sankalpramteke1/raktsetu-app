@@ -1,99 +1,125 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { BorderRadius, Palette, Spacing } from '../constants/theme';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { BorderRadius, Palette, Shadows, Spacing } from '../constants/theme';
 
 interface FilterOption<T> {
   label: string;
   value: T;
-  count?: number;
+  badge?: number;
 }
 
-interface Props<T> {
+interface FilterChipsProps<T> {
   options: FilterOption<T>[];
   selected: T;
   onSelect: (value: T) => void;
 }
 
-export function FilterChips<T extends string>({ options, selected, onSelect }: Props<T>) {
+export function FilterChips<T extends string>({
+  options,
+  selected,
+  onSelect,
+}: FilterChipsProps<T>) {
   return (
-    <View style={styles.wrapper}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}>
-        {options.map((opt) => {
-          const isSelected = opt.value === selected;
-          return (
-            <TouchableOpacity
-              key={opt.label}
-              style={[styles.chip, isSelected && styles.chipSelected]}
-              onPress={() => onSelect(opt.value)}
-              activeOpacity={0.7}>
-              <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
-                {opt.label}
-              </Text>
-              {opt.count !== undefined && (
-                <View style={[styles.countBadge, isSelected && styles.countBadgeSelected]}>
-                  <Text style={[styles.countText, isSelected && styles.countTextSelected]}>
-                    {opt.count}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-    </View>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.container}>
+      {options.map((option) => {
+        const isSelected = option.value === selected;
+        return (
+          <Pressable
+            key={option.value}
+            style={({ pressed }) => [
+              styles.chip,
+              isSelected ? styles.chipSelected : styles.chipUnselected,
+              pressed && styles.pressed,
+            ]}
+            onPress={() => onSelect(option.value)}>
+            <Text
+              style={[
+                styles.chipLabel,
+                isSelected ? styles.chipLabelSelected : styles.chipLabelUnselected,
+              ]}>
+              {option.label}
+            </Text>
+            {option.badge !== undefined && (
+              <View
+                style={[
+                  styles.badge,
+                  isSelected ? styles.badgeSelected : styles.badgeUnselected,
+                ]}>
+                <Text
+                  style={[
+                    styles.badgeText,
+                    isSelected ? styles.badgeTextSelected : styles.badgeTextUnselected,
+                  ]}>
+                  {option.badge}
+                </Text>
+              </View>
+            )}
+          </Pressable>
+        );
+      })}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    marginVertical: Spacing.xs,
-  },
-  scrollContent: {
-    gap: 6,
-    paddingRight: Spacing.screenPadding,
+  container: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingVertical: 6,
   },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     borderRadius: BorderRadius.full,
-    backgroundColor: Palette.white,
     borderWidth: 1,
-    borderColor: Palette.border,
+    gap: 6,
   },
   chipSelected: {
     backgroundColor: Palette.primary,
     borderColor: Palette.primary,
+    ...Shadows.subtle,
   },
-  chipText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Palette.textSecondary,
+  chipUnselected: {
+    backgroundColor: Palette.white,
+    borderColor: Palette.border,
   },
-  chipTextSelected: {
-    color: Palette.white,
+  chipLabel: {
+    fontSize: 13,
     fontWeight: '700',
   },
-  countBadge: {
-    backgroundColor: Palette.borderSubtle,
-    paddingHorizontal: 5,
+  chipLabelSelected: {
+    color: Palette.white,
+  },
+  chipLabelUnselected: {
+    color: Palette.textSecondary,
+  },
+  badge: {
+    paddingHorizontal: 6,
     paddingVertical: 1,
     borderRadius: BorderRadius.full,
-    marginLeft: 5,
   },
-  countBadgeSelected: {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+  badgeSelected: {
+    backgroundColor: 'rgba(255,255,255,0.25)',
   },
-  countText: {
-    fontSize: 10,
+  badgeUnselected: {
+    backgroundColor: Palette.backgroundSubtle,
+  },
+  badgeText: {
+    fontSize: 11,
     fontWeight: '700',
+  },
+  badgeTextSelected: {
+    color: Palette.white,
+  },
+  badgeTextUnselected: {
     color: Palette.textSecondary,
   },
-  countTextSelected: {
-    color: Palette.white,
+  pressed: {
+    opacity: 0.8,
   },
 });

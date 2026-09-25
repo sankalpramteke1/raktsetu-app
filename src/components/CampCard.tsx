@@ -49,12 +49,12 @@ export const CampCard: React.FC<Props> = ({ camp }) => {
       {/* Date & Time */}
       <View style={styles.scheduleRow}>
         <View style={styles.metaItem}>
-          <Ionicons name="calendar-outline" size={13} color={Palette.textMuted} />
+          <Ionicons name="calendar-outline" size={13} color={Palette.textSecondary} />
           <Text style={styles.metaText}>{camp.date}</Text>
         </View>
         <Text style={styles.dotSep}>·</Text>
         <View style={styles.metaItem}>
-          <Ionicons name="time-outline" size={13} color={Palette.textMuted} />
+          <Ionicons name="time-outline" size={13} color={Palette.textSecondary} />
           <Text style={styles.metaText}>
             {camp.startTime} – {camp.endTime}
           </Text>
@@ -76,7 +76,7 @@ export const CampCard: React.FC<Props> = ({ camp }) => {
       <View style={styles.bottomRow}>
         <View style={styles.metricsGroup}>
           <View style={styles.metricItem}>
-            <Ionicons name="people-outline" size={13} color={Palette.textSecondary} />
+            <Ionicons name="people-outline" size={14} color={Palette.textSecondary} />
             <Text style={styles.metricText}>
               <Text style={styles.metricBold}>{camp.participants.length}</Text> registered
             </Text>
@@ -85,7 +85,7 @@ export const CampCard: React.FC<Props> = ({ camp }) => {
           <Text style={styles.dotSep}>·</Text>
 
           <View style={styles.metricItem}>
-            <Ionicons name="medkit-outline" size={13} color={Palette.primary} />
+            <Ionicons name="medkit-outline" size={14} color={Palette.primary} />
             <Text style={styles.metricText}>
               <Text style={[styles.metricBold, { color: Palette.primary }]}>
                 {camp.unitsCollected}
@@ -95,7 +95,7 @@ export const CampCard: React.FC<Props> = ({ camp }) => {
           </View>
         </View>
 
-        <Ionicons name="chevron-forward" size={15} color={Palette.textMuted} />
+        <Ionicons name="chevron-forward" size={16} color={Palette.textMuted} />
       </View>
     </Pressable>
   );
@@ -107,16 +107,17 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Palette.border,
-    ...Shadows.subtle,
-    marginBottom: Spacing.sm,
+    borderColor: Palette.borderLight,
+    ...Shadows.card,
+    marginBottom: Spacing.sm + 2,
   },
   ongoingAccent: {
-    borderLeftWidth: 3,
+    borderLeftWidth: 4,
     borderLeftColor: Palette.healthy,
   },
   pressed: {
-    opacity: 0.75,
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
   topRow: {
     flexDirection: 'row',
@@ -125,9 +126,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   typeBadge: {
-    backgroundColor: Palette.borderSubtle,
-    paddingHorizontal: 7,
-    paddingVertical: 2,
+    backgroundColor: Palette.backgroundSubtle,
+    paddingHorizontal: 8,
+    paddingVertical: 2.5,
     borderRadius: BorderRadius.xs,
   },
   typeText: {
@@ -143,17 +144,20 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   bloodIconCircle: {
-    width: 24,
-    height: 24,
+    width: 26,
+    height: 26,
     borderRadius: BorderRadius.full,
     backgroundColor: Palette.primarySurface,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#FECDD3',
   },
   campName: {
     fontSize: 15,
     fontWeight: '800',
     color: Palette.textPrimary,
+    letterSpacing: -0.3,
     flex: 1,
   },
   scheduleRow: {
@@ -169,6 +173,7 @@ const styles = StyleSheet.create({
   metaText: {
     fontSize: 12,
     color: Palette.textSecondary,
+    fontWeight: '500',
   },
   locationRow: {
     flexDirection: 'row',
@@ -187,7 +192,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: Palette.borderSubtle,
+    backgroundColor: Palette.borderLight,
     marginVertical: 10,
   },
   bottomRow: {
@@ -205,7 +210,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   metricText: {
-    fontSize: 11,
+    fontSize: 12,
     color: Palette.textSecondary,
   },
   metricBold: {

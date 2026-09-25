@@ -14,7 +14,6 @@ interface Props {
 export const BloodGroupCard: React.FC<Props> = ({ item, compact = false }) => {
   const router = useRouter();
 
-  // Availability ratio for the mini progress bar
   const ratio = Math.min(Math.round((item.units / item.optimalLevel) * 100), 100);
 
   const getStatusColor = () => {
@@ -37,7 +36,6 @@ export const BloodGroupCard: React.FC<Props> = ({ item, compact = false }) => {
     });
   };
 
-  // Compact Pill mode (used on Dashboard 2x2 or 4-item grid)
   if (compact) {
     return (
       <Pressable
@@ -53,7 +51,6 @@ export const BloodGroupCard: React.FC<Props> = ({ item, compact = false }) => {
     );
   }
 
-  // Standard visual card (used on Blood Stock tab)
   return (
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
@@ -68,7 +65,6 @@ export const BloodGroupCard: React.FC<Props> = ({ item, compact = false }) => {
             <Text style={styles.unitsNumber}>{item.units}</Text>
             <Text style={styles.unitsUnit}>Units available</Text>
           </View>
-          {/* Subtle mini progress bar */}
           <View style={styles.progressTrack}>
             <View
               style={[
@@ -99,9 +95,9 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Palette.border,
-    ...Shadows.subtle,
-    marginBottom: Spacing.sm,
+    borderColor: Palette.borderLight,
+    ...Shadows.card,
+    marginBottom: Spacing.sm + 2,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -109,17 +105,20 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   groupBadge: {
-    width: 46,
-    height: 46,
+    width: 48,
+    height: 48,
     borderRadius: BorderRadius.md,
     backgroundColor: Palette.primarySurface,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#FECDD3',
   },
   groupText: {
     fontSize: 18,
     fontWeight: '800',
     color: Palette.primary,
+    letterSpacing: -0.3,
   },
   centerCol: {
     flex: 1,
@@ -128,28 +127,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
     gap: 5,
-    marginBottom: 6,
+    marginBottom: 8,
   },
   unitsNumber: {
-    fontSize: 20,
+    fontSize: 21,
     fontWeight: '800',
     color: Palette.textPrimary,
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
   },
   unitsUnit: {
     fontSize: 12,
-    color: Palette.textMuted,
+    color: Palette.textSecondary,
     fontWeight: '500',
   },
   progressTrack: {
-    height: 4,
+    height: 5,
     backgroundColor: Palette.borderSubtle,
-    borderRadius: 2,
+    borderRadius: 3,
     overflow: 'hidden',
   },
   progressBar: {
     height: '100%',
-    borderRadius: 2,
+    borderRadius: 3,
   },
   rightCol: {
     alignItems: 'flex-end',
@@ -160,28 +159,27 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   pressed: {
-    opacity: 0.75,
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
-
-  // Compact Pill mode styles
   pillCard: {
     flex: 1,
     minWidth: '22%',
     backgroundColor: Palette.white,
     borderRadius: BorderRadius.md,
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 10,
     borderWidth: 1,
-    borderColor: Palette.border,
+    borderColor: Palette.borderLight,
     alignItems: 'center',
-    ...Shadows.subtle,
+    ...Shadows.card,
   },
   pillTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   pillGroup: {
     fontSize: 15,
@@ -189,19 +187,20 @@ const styles = StyleSheet.create({
     color: Palette.textPrimary,
   },
   statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
   },
   pillUnits: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '800',
     color: Palette.textPrimary,
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
   },
   pillLabel: {
-    fontSize: 10,
+    fontSize: 11,
     color: Palette.textMuted,
     fontWeight: '500',
+    marginTop: 1,
   },
 });

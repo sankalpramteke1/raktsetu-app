@@ -89,81 +89,106 @@ export default function DashboardScreen() {
           />
         }>
 
-        {/* Stats Row */}
-        <View style={styles.statsRow}>
-          <View style={[styles.statBox, { borderLeftColor: Palette.healthy }]}>
-            <Text style={styles.statNumber}>{stockStats?.addedToday ?? 24}</Text>
-            <Text style={styles.statLabel}>Units{'\n'}Collected</Text>
-          </View>
-          <View style={[styles.statBox, { borderLeftColor: Palette.issued }]}>
-            <Text style={styles.statNumber}>{stockStats?.issuedToday ?? 17}</Text>
-            <Text style={styles.statLabel}>Units{'\n'}Issued</Text>
-          </View>
-          <View style={[styles.statBox, { borderLeftColor: Palette.moderate }]}>
-            <Text style={styles.statNumber}>{stockStats?.totalUnits ?? 219}</Text>
-            <Text style={styles.statLabel}>Total{'\n'}Stock</Text>
-          </View>
-          <View style={[styles.statBox, { borderLeftColor: Palette.warning }]}>
-            <Text style={[styles.statNumber, { color: Palette.warning }]}>
-              {pendingRequests.length || 7}
-            </Text>
-            <Text style={styles.statLabel}>Pending{'\n'}Requests</Text>
+        {/* Hero Operational Banner */}
+        <View style={styles.heroSection}>
+          <View style={styles.heroCard}>
+            <View style={styles.heroHeader}>
+              <View style={styles.heroBadge}>
+                <Ionicons name="shield-checkmark" size={13} color={Palette.healthy} />
+                <Text style={styles.heroBadgeText}>Optimal Operations</Text>
+              </View>
+              <Text style={styles.heroSubText}>Durg District Central Hub</Text>
+            </View>
+
+            <View style={styles.heroMainRow}>
+              <View>
+                <Text style={styles.heroMetricLabel}>Total Tested Reserve</Text>
+                <View style={styles.heroMetricValueRow}>
+                  <Text style={styles.heroMetricValue}>{stockStats?.totalUnits ?? 219}</Text>
+                  <Text style={styles.heroMetricUnits}>Units Ready</Text>
+                </View>
+              </View>
+              <View style={styles.heroDropIcon}>
+                <Ionicons name="water" size={28} color={Palette.primary} />
+              </View>
+            </View>
+
+            {/* 3 Metric Pills inside Hero */}
+            <View style={styles.heroMetricsGrid}>
+              <View style={styles.heroMetricPill}>
+                <Text style={styles.heroMetricPillVal}>{stockStats?.addedToday ?? 14}</Text>
+                <Text style={styles.heroMetricPillLbl}>Collected Today</Text>
+              </View>
+              <View style={styles.heroMetricPillDivider} />
+              <View style={styles.heroMetricPill}>
+                <Text style={[styles.heroMetricPillVal, { color: Palette.critical }]}>
+                  {stockStats?.criticalCount ?? 2}
+                </Text>
+                <Text style={styles.heroMetricPillLbl}>Critical Low</Text>
+              </View>
+              <View style={styles.heroMetricPillDivider} />
+              <View style={styles.heroMetricPill}>
+                <Text style={[styles.heroMetricPillVal, { color: Palette.moderate }]}>
+                  {pendingRequests.length}
+                </Text>
+                <Text style={styles.heroMetricPillLbl}>Pending Req.</Text>
+              </View>
+            </View>
           </View>
         </View>
 
-        {/* Quick Actions */}
+        {/* Quick Action Grid */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.quickActionsGrid}>
             <Pressable
               style={({ pressed }) => [styles.quickActionBtn, pressed && styles.pressed]}
-              onPress={() => router.push('/requisition' as any)}>
-              <View style={[styles.quickActionIcon, { backgroundColor: '#FEE2E2' }]}>
-                <Ionicons name="document-text" size={22} color={Palette.primary} />
+              onPress={() => router.push('/requisition')}>
+              <View style={[styles.quickActionIcon, { backgroundColor: Palette.primarySurface }]}>
+                <Ionicons name="add-circle" size={22} color={Palette.primary} />
               </View>
-              <Text style={styles.quickActionLabel}>Requisition{'\n'}Form</Text>
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [styles.quickActionBtn, pressed && styles.pressed]}
-              onPress={() => router.push('/(tabs)/requests')}>
-              <View style={[styles.quickActionIcon, { backgroundColor: '#FEF3C7' }]}>
-                <Ionicons name="hourglass" size={22} color={Palette.warning} />
-              </View>
-              <Text style={styles.quickActionLabel}>Blood{'\n'}Requests</Text>
+              <Text style={styles.quickActionLabel}>Request Blood</Text>
             </Pressable>
 
             <Pressable
               style={({ pressed }) => [styles.quickActionBtn, pressed && styles.pressed]}
               onPress={() => router.push('/(tabs)/stock')}>
-              <View style={[styles.quickActionIcon, { backgroundColor: '#DBEAFE' }]}>
-                <Ionicons name="water" size={22} color={Palette.moderate} />
+              <View style={[styles.quickActionIcon, { backgroundColor: Palette.healthyBg }]}>
+                <Ionicons name="water" size={22} color={Palette.healthy} />
               </View>
-              <Text style={styles.quickActionLabel}>Blood{'\n'}Stock</Text>
+              <Text style={styles.quickActionLabel}>Stock Level</Text>
             </Pressable>
 
             <Pressable
               style={({ pressed }) => [styles.quickActionBtn, pressed && styles.pressed]}
               onPress={() => router.push('/(tabs)/camps')}>
-              <View style={[styles.quickActionIcon, { backgroundColor: '#F0FDF4' }]}>
-                <Ionicons name="calendar" size={22} color={Palette.healthy} />
+              <View style={[styles.quickActionIcon, { backgroundColor: Palette.moderateBg }]}>
+                <Ionicons name="calendar" size={22} color={Palette.moderate} />
               </View>
-              <Text style={styles.quickActionLabel}>Donation{'\n'}Camps</Text>
+              <Text style={styles.quickActionLabel}>Blood Camps</Text>
+            </Pressable>
+
+            <Pressable
+              style={({ pressed }) => [styles.quickActionBtn, pressed && styles.pressed]}
+              onPress={() => router.push('/(tabs)/reports')}>
+              <View style={[styles.quickActionIcon, { backgroundColor: Palette.warningBg }]}>
+                <Ionicons name="bar-chart" size={22} color={Palette.warning} />
+              </View>
+              <Text style={styles.quickActionLabel}>Analytics</Text>
             </Pressable>
           </View>
         </View>
 
-        {/* Critical Alerts */}
+        {/* Critical Stock Alerts */}
         {criticalStock.length > 0 && (
           <View style={styles.section}>
-            <View style={styles.sectionHeaderRow}>
+            <View style={styles.alertHeaderRow}>
               <View style={styles.alertDot} />
-              <Text style={[styles.sectionTitle, { color: Palette.critical }]}>
-                Critical Alerts
-              </Text>
+              <Text style={styles.sectionTitleAlert}>Critical Restock Alert</Text>
             </View>
+
             <View style={styles.alertsBanner}>
-              {criticalStock.slice(0, 3).map((item) => (
+              {criticalStock.slice(0, 2).map((item) => (
                 <Pressable
                   key={item.bloodGroup}
                   style={({ pressed }) => [styles.alertItem, pressed && styles.pressed]}
@@ -176,36 +201,36 @@ export default function DashboardScreen() {
                   <View style={styles.alertBloodBadge}>
                     <Text style={styles.alertBloodText}>{item.bloodGroup}</Text>
                   </View>
+
                   <View style={styles.alertInfo}>
-                    <Text style={styles.alertUnits}>{item.units} units</Text>
-                    <Text style={styles.alertStatus}>{item.status} level</Text>
+                    <Text style={styles.alertUnits}>{item.units} units remaining</Text>
+                    <Text style={styles.alertStatus}>
+                      Target: {item.optimalLevel} units • {item.status}
+                    </Text>
                   </View>
-                  <View
-                    style={[
-                      styles.alertStatusDot,
-                      {
-                        backgroundColor:
-                          item.status === 'Critical' ? Palette.critical : Palette.warning,
-                      },
-                    ]}
-                  />
+
+                  <View style={styles.restockBadge}>
+                    <Text style={styles.restockText}>Restock</Text>
+                    <Ionicons name="chevron-forward" size={13} color={Palette.primary} />
+                  </View>
                 </Pressable>
               ))}
             </View>
           </View>
         )}
 
-        {/* Blood Stock Preview */}
+        {/* Blood Stock Quick Snapshot */}
         <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>Blood Stock</Text>
+            <Text style={styles.sectionTitle}>Blood Reserve Snapshot</Text>
             <Pressable
               onPress={() => router.push('/(tabs)/stock')}
               style={({ pressed }) => [styles.viewAllBtn, pressed && styles.pressed]}>
-              <Text style={styles.viewAllText}>View all</Text>
+              <Text style={styles.viewAllText}>All groups</Text>
               <Ionicons name="chevron-forward" size={13} color={Palette.primary} />
             </Pressable>
           </View>
+
           <View style={styles.stockGrid}>
             {topStockGroups.map((item) => (
               <BloodGroupCard key={item.bloodGroup} item={item} compact={true} />
@@ -213,18 +238,19 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Featured Camp */}
+        {/* Featured Donation Camp */}
         {featuredCamp && (
           <View style={styles.section}>
             <View style={styles.sectionHeaderRow}>
-              <Text style={styles.sectionTitle}>Donation Camp</Text>
+              <Text style={styles.sectionTitle}>Featured Blood Drive</Text>
               <Pressable
                 onPress={() => router.push('/(tabs)/camps')}
                 style={({ pressed }) => [styles.viewAllBtn, pressed && styles.pressed]}>
-                <Text style={styles.viewAllText}>View all</Text>
+                <Text style={styles.viewAllText}>All drives</Text>
                 <Ionicons name="chevron-forward" size={13} color={Palette.primary} />
               </Pressable>
             </View>
+
             <Pressable
               style={({ pressed }) => [
                 styles.campCard,
@@ -260,7 +286,7 @@ export default function DashboardScreen() {
               <View style={styles.campMeta}>
                 <Ionicons name="calendar-outline" size={13} color={Palette.textSecondary} />
                 <Text style={styles.campMetaText}>{featuredCamp.date}</Text>
-                <Text style={styles.campMetaDot}>·</Text>
+                <Text style={styles.campMetaDot}>•</Text>
                 <Ionicons name="location-outline" size={13} color={Palette.textSecondary} />
                 <Text style={styles.campMetaText} numberOfLines={1}>
                   {featuredCamp.venue}
@@ -290,7 +316,7 @@ export default function DashboardScreen() {
 
         {/* Recent Activity */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Activity</Text>
+          <Text style={styles.sectionTitle}>Recent Activity Log</Text>
           <View style={styles.activityList}>
             {recentActivities.map((act, index) => (
               <ActivityItem
@@ -316,42 +342,114 @@ const styles = StyleSheet.create({
     backgroundColor: Palette.background,
   },
   contentContainer: {
-    paddingBottom: 32,
+    paddingBottom: 36,
   },
 
-  // Stats Row
-  statsRow: {
-    flexDirection: 'row',
+  // Hero Section
+  heroSection: {
     paddingHorizontal: Spacing.screenPadding,
     paddingTop: Spacing.md,
-    gap: 10,
   },
-  statBox: {
-    flex: 1,
+  heroCard: {
     backgroundColor: Palette.white,
-    borderRadius: BorderRadius.md,
-    padding: 12,
-    borderLeftWidth: 3,
-    borderTopWidth: 1,
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
-    borderTopColor: Palette.border,
-    borderRightColor: Palette.border,
-    borderBottomColor: Palette.border,
-    ...Shadows.subtle,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Palette.borderLight,
+    ...Shadows.card,
   },
-  statNumber: {
-    fontSize: 22,
+  heroHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  heroBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: Palette.healthyBg,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Palette.healthyBorder,
+  },
+  heroBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Palette.healthy,
+  },
+  heroSubText: {
+    fontSize: 11,
+    color: Palette.textMuted,
+    fontWeight: '500',
+  },
+  heroMainRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  heroMetricLabel: {
+    fontSize: 12,
+    color: Palette.textSecondary,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  heroMetricValueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
+  },
+  heroMetricValue: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: Palette.textPrimary,
+    letterSpacing: -0.8,
+  },
+  heroMetricUnits: {
+    fontSize: 14,
+    color: Palette.primary,
+    fontWeight: '700',
+  },
+  heroDropIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: Palette.primarySurface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#FECDD3',
+  },
+  heroMetricsGrid: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Palette.background,
+    borderRadius: BorderRadius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+  },
+  heroMetricPill: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  heroMetricPillVal: {
+    fontSize: 17,
     fontWeight: '800',
     color: Palette.textPrimary,
-    letterSpacing: -0.5,
   },
-  statLabel: {
+  heroMetricPillLbl: {
     fontSize: 10,
-    color: Palette.textMuted,
     fontWeight: '600',
-    marginTop: 3,
-    lineHeight: 13,
+    color: Palette.textMuted,
+    marginTop: 1,
+  },
+  heroMetricPillDivider: {
+    width: 1,
+    height: 22,
+    backgroundColor: Palette.border,
   },
 
   // Section
@@ -361,10 +459,28 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
     color: Palette.textPrimary,
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
     marginBottom: Spacing.sm,
+  },
+  alertHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: Spacing.xs + 2,
+  },
+  alertDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Palette.critical,
+  },
+  sectionTitleAlert: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: Palette.critical,
+    letterSpacing: -0.2,
   },
   sectionHeaderRow: {
     flexDirection: 'row',
@@ -379,11 +495,12 @@ const styles = StyleSheet.create({
   },
   viewAllText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
     color: Palette.primary,
   },
   pressed: {
-    opacity: 0.75,
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
 
   // Quick Actions
@@ -394,13 +511,13 @@ const styles = StyleSheet.create({
   quickActionBtn: {
     flex: 1,
     backgroundColor: Palette.white,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     paddingVertical: 14,
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Palette.border,
-    ...Shadows.subtle,
+    borderColor: Palette.borderLight,
+    ...Shadows.card,
   },
   quickActionIcon: {
     width: 44,
@@ -412,28 +529,20 @@ const styles = StyleSheet.create({
   },
   quickActionLabel: {
     fontSize: 11,
-    fontWeight: '600',
-    color: Palette.textSecondary,
+    fontWeight: '700',
+    color: Palette.textPrimary,
     textAlign: 'center',
-    lineHeight: 15,
+    lineHeight: 14,
   },
 
   // Critical Alerts
-  alertDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: Palette.critical,
-    marginRight: 6,
-    marginBottom: Spacing.sm,
-  },
   alertsBanner: {
     backgroundColor: Palette.white,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: '#FEE2E2',
+    borderColor: Palette.criticalBorder,
     overflow: 'hidden',
-    ...Shadows.subtle,
+    ...Shadows.card,
   },
   alertItem: {
     flexDirection: 'row',
@@ -447,34 +556,44 @@ const styles = StyleSheet.create({
   alertBloodBadge: {
     width: 44,
     height: 44,
-    borderRadius: BorderRadius.sm,
+    borderRadius: BorderRadius.md,
     backgroundColor: Palette.primarySurface,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#FECDD3',
   },
   alertBloodText: {
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 16,
+    fontWeight: '900',
     color: Palette.primary,
   },
   alertInfo: {
     flex: 1,
   },
   alertUnits: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '800',
     color: Palette.textPrimary,
   },
   alertStatus: {
-    fontSize: 12,
+    fontSize: 11,
     color: Palette.textMuted,
-    marginTop: 1,
-    textTransform: 'capitalize',
+    marginTop: 2,
   },
-  alertStatusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  restockBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: Palette.primarySurface,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+  },
+  restockText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: Palette.primary,
   },
 
   // Stock Grid
@@ -489,8 +608,8 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Palette.border,
-    ...Shadows.subtle,
+    borderColor: Palette.borderLight,
+    ...Shadows.card,
   },
   campCardOngoing: {
     borderColor: Palette.healthyBorder,
@@ -531,9 +650,10 @@ const styles = StyleSheet.create({
   },
   campName: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
     color: Palette.textPrimary,
     marginBottom: 6,
+    letterSpacing: -0.2,
   },
   campMeta: {
     flexDirection: 'row',
@@ -544,6 +664,7 @@ const styles = StyleSheet.create({
   campMetaText: {
     fontSize: 12,
     color: Palette.textSecondary,
+    fontWeight: '500',
   },
   campMetaDot: {
     fontSize: 12,
@@ -554,12 +675,12 @@ const styles = StyleSheet.create({
   // Activity
   activityList: {
     backgroundColor: Palette.white,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Palette.border,
+    borderColor: Palette.borderLight,
     overflow: 'hidden',
     paddingHorizontal: Spacing.md,
     paddingVertical: 4,
-    ...Shadows.subtle,
+    ...Shadows.card,
   },
 });

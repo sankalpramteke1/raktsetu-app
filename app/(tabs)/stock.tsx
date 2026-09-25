@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: Spacing.screenPadding,
     paddingTop: Spacing.sm,
-    paddingBottom: 32,
+    paddingBottom: 36,
     backgroundColor: Palette.background,
   },
   headerComponent: {
