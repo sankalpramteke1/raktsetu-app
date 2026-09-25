@@ -1,0 +1,128 @@
+name: Build & Release Android APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Release Tag (e.g. v1.0.0, leave empty to use package.json version)'
+        required: false
+        default: ''
+      apk_url:
+        description: 'Optional: Direct APK link (e.g. existing EAS build URL). If empty, EAS will build a fresh APK.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build and Publish APK Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve Release Tag
+        id: tag_info
+        run: |
+          if [ -n "${{ github.event.inputs.version_tag }}" ]; then
+            TAG="${{ github.event.inputs.version_tag }}"
+          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            TAG="${{ github.ref_name }}"
+          else
+            APP_VER=$(node -p "require('./package.json').version || '1.0.0'")
+            TAG="v$APP_VER"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Release tag resolved to: $TAG"
+
+      # Option A: Fast-track if direct APK URL was supplied
+      - name: Download APK from provided URL
+        if: ${{ github.event.inputs.apk_url != '' }}
+        run: |
+          echo "Downloading APK from provided URL..."
+          curl -f -L "${{ github.event.inputs.apk_url }}" -o raktsetu.apk
+
+      # Option B: Run EAS Build on the cloud
+      - name: Setup Node.js
+        if: ${{ github.event.inputs.apk_url == '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Expo & EAS CLI
+        if: ${{ github.event.inputs.apk_url == '' }}
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        if: ${{ github.event.inputs.apk_url == '' }}
+        run: npm ci || npm install
+
+      - name: Run EAS Build for Android APK
+        if: ${{ github.event.inputs.apk_url == '' }}
+        run: |
+          echo "Triggering EAS Android Preview Build..."
+          BUILD_OUTPUT=$(eas build --platform android --profile preview --non-interactive --wait --json)
+          echo "$BUILD_OUTPUT" > eas-build.json
+          
+          # Extract APK download URL from EAS output
+          APK_URL=$(node -p "
+            try {
+              const res = JSON.parse(require('fs').readFileSync('eas-build.json', 'utf8'));
+              const item = Array.isArray(res) ? res[0] : res;
+              item.artifacts?.applicationArchiveUrl || item.artifacts?.buildUrl || '';
+            } catch(e) { '' }
+          ")
+          
+          if [ -z "$APK_URL" ]; then
+            echo "Failed to retrieve APK URL from EAS build output."
+            cat eas-build.json
+            exit 1
+          fi
+          
+          echo "Downloading built APK from: $APK_URL"
+          curl -f -L "$APK_URL" -o raktsetu.apk
+
+      - name: Verify APK File
+        run: |
+          if [ ! -s raktsetu.apk ]; then
+            echo "Error: raktsetu.apk was not found or is 0 bytes!"
+            exit 1
+          fi
+          echo "raktsetu.apk verified successfully. File size:"
+          ls -lh raktsetu.apk
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag_info.outputs.tag }}
+          name: "RaktSetu Mobile ${{ steps.tag_info.outputs.tag }}"
+          body: |
+            ## RaktSetu Mobile App (${{ steps.tag_info.outputs.tag }})
+
+            Official Android APK release for **RaktSetu Mobile Application**.
+            Designed for Durg District Hospital Blood Bank volunteers and hospital staff.
+
+            ### What is included:
+            - On-field blood donor registration & status tracking
+            - Live real-time blood inventory overview
+            - Emergency blood requests handling
+            - Automatic in-app update checks
+
+            ### How to Install:
+            1. Tap on **`raktsetu.apk`** in the Assets list below to download.
+            2. Open the downloaded file on your Android device.
+            3. If Android prompts a warning, tap **"Download anyway"** and allow **"Install unknown apps"** in Settings.
+          files: raktsetu.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

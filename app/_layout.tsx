@@ -1,9 +1,10 @@
-import { useFonts } from 'expo-font';
+﻿import { useFonts } from 'expo-font';
 import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { Palette } from '../src/constants/theme';
+import { useAppUpdate } from '../src/hooks/useAppUpdate';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -18,6 +19,9 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
+  // Automatically check for new RaktSetu APK release on launch
+  useAppUpdate();
+
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
