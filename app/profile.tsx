@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { BorderRadius, Palette, Shadows, Spacing } from '../src/constants/theme';
+import { checkForAppUpdate } from '../src/services/updateService';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -122,6 +123,13 @@ export default function ProfileScreen() {
             onPress={handleSimulateSync}
             activeOpacity={0.8}>
             <Text style={styles.checkBtnText}>Diagnostics Check</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.checkBtn, { marginTop: 8, backgroundColor: Palette.primary }]}
+            onPress={() => checkForAppUpdate(true)}
+            activeOpacity={0.8}>
+            <Text style={[styles.checkBtnText, { color: Palette.white }]}>Check for App Updates</Text>
           </TouchableOpacity>
         </View>
 

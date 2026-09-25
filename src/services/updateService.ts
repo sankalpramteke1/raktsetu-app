@@ -1,11 +1,9 @@
-﻿import { Alert, Linking, Platform } from 'react-native';
+import { Alert, Linking, Platform } from 'react-native';
 import Constants from 'expo-constants';
 
-// Backend API URL:
-// For local development on Android emulator: 'http://10.0.2.2:4000/api/public/app-version'
-// For physical device on the same local Wi-Fi: replace with your machine's LAN IP, e.g., 'http://192.168.1.X:4000/api/public/app-version'
-// For production / deployed server: 'https://your-backend-domain.com/api/public/app-version'
-export const APP_VERSION_API_URL = 'http://10.0.2.2:4000/api/public/app-version';
+const GITHUB_REPO = 'sankalpramteke1/raktsetu-app';
+const GITHUB_RELEASES_API = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
+const BACKEND_VERSION_API = 'http://10.0.2.2:4000/api/public/app-version';
 
 export interface AppVersionInfo {
   appName: string;
@@ -14,11 +12,10 @@ export interface AppVersionInfo {
   fileSize?: string;
   downloadUrl: string;
   releaseNotes?: string;
-  githubRepo?: string;
 }
 
 /**
- * Compares two semantic version strings (e.g. "1.0.1" vs "1.0.0" or "v1.0.1")
+ * Compares two semantic version strings (e.g. "v1.0.1" vs "v1.0.0" or "1.1.0" vs "1.0.0")
  * Returns true if serverVer is strictly newer than currentVer.
  */
 export function isNewerVersion(serverVer: string, currentVer: string): boolean {
@@ -37,31 +34,78 @@ export function isNewerVersion(serverVer: string, currentVer: string): boolean {
 }
 
 /**
- * Checks for a newer APK version from the backend and prompts the user.
+ * Fetches latest release info from GitHub API (or fallback to backend)
  */
-export async function checkForAppUpdate(): Promise<void> {
-  // Only check on Android devices
-  if (Platform.OS !== 'android') return;
-
+export async function fetchLatestAppVersion(): Promise<AppVersionInfo | null> {
+  // 1. Try GitHub Releases API first (available globally 24/7 on any internet network)
   try {
-    const response = await fetch(APP_VERSION_API_URL, {
+    const ghRes = await fetch(GITHUB_RELEASES_API, {
       headers: {
-        Accept: 'application/json',
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'RaktSetu-Mobile-App',
       },
     });
 
-    if (!response.ok) return;
+    if (ghRes.ok) {
+      const data = await ghRes.json();
+      const apkAsset = data.assets?.find((a: any) => a.name?.endsWith('.apk')) || data.assets?.[0];
 
-    const data: AppVersionInfo = await response.json();
-    const currentVersion = Constants.expoConfig?.version || '1.0.0';
-    const serverVersion = data.version;
+      if (data.tag_name && apkAsset?.browser_download_url) {
+        return {
+          appName: 'RaktSetu Mobile',
+          version: data.tag_name,
+          releaseDate: data.published_at ? data.published_at.split('T')[0] : '',
+          fileSize: apkAsset.size ? `${(apkAsset.size / (1024 * 1024)).toFixed(1)} MB` : '~18 MB',
+          downloadUrl: apkAsset.browser_download_url,
+          releaseNotes: data.body || 'Performance improvements and bug fixes.',
+        };
+      }
+    }
+  } catch (err) {
+    // If GitHub API fails, proceed to backend fallback
+  }
 
-    if (serverVersion && isNewerVersion(serverVersion, currentVersion)) {
+  // 2. Fallback to Local/Production Backend API
+  try {
+    const backendRes = await fetch(BACKEND_VERSION_API, {
+      headers: { Accept: 'application/json' },
+    });
+    if (backendRes.ok) {
+      const data: AppVersionInfo = await backendRes.json();
+      if (data.version && data.downloadUrl) {
+        return data;
+      }
+    }
+  } catch (err) {
+    // Both endpoints unreachable (offline)
+  }
+
+  return null;
+}
+
+/**
+ * Checks for updates on app startup or manually from settings.
+ * @param isManualCheck If true, shows a confirmation dialog even when app is already up to date.
+ */
+export async function checkForAppUpdate(isManualCheck = false): Promise<void> {
+  const currentVersion = Constants.expoConfig?.version || '1.0.0';
+
+  try {
+    const latestInfo = await fetchLatestAppVersion();
+
+    if (!latestInfo) {
+      if (isManualCheck) {
+        Alert.alert('Status', `RaktSetu v${currentVersion} active. Network server unreachable right now.`);
+      }
+      return;
+    }
+
+    const hasNewerVersion = isNewerVersion(latestInfo.version, currentVersion);
+
+    if (hasNewerVersion) {
       Alert.alert(
-        `🚀 Naya Update Uplabdh Hai (${data.version})`,
-        data.releaseNotes
-          ? `${data.releaseNotes}\n\nSize: ${data.fileSize || 'N/A'}\n\nKripya latest version install karein.`
-          : 'App me naye features aur performance improvements add kiye gaye hain.',
+        `Naya Update Uplabdh Hai (${latestInfo.version})`,
+        `${latestInfo.releaseNotes || 'Naye features aur improvements add kiye gaye hain.'}\n\nSize: ${latestInfo.fileSize || '~18 MB'}\nVersion: ${latestInfo.version}\n\nKya aap naya update install karna chahte hain?`,
         [
           {
             text: 'Baad me',
@@ -70,12 +114,16 @@ export async function checkForAppUpdate(): Promise<void> {
           {
             text: 'Update Now (APK)',
             onPress: async () => {
-              if (data.downloadUrl) {
-                const canOpen = await Linking.canOpenURL(data.downloadUrl);
-                if (canOpen) {
-                  await Linking.openURL(data.downloadUrl);
-                } else {
-                  Alert.alert('Download Error', 'Download link open nahi ho paya.');
+              if (latestInfo.downloadUrl) {
+                try {
+                  const canOpen = await Linking.canOpenURL(latestInfo.downloadUrl);
+                  if (canOpen) {
+                    await Linking.openURL(latestInfo.downloadUrl);
+                  } else {
+                    Alert.alert('Download Error', 'Download link open nahi ho paya.');
+                  }
+                } catch {
+                  Alert.alert('Download Error', 'Link open karne me samasya aayi.');
                 }
               }
             },
@@ -83,9 +131,15 @@ export async function checkForAppUpdate(): Promise<void> {
         ],
         { cancelable: false }
       );
+    } else if (isManualCheck) {
+      Alert.alert(
+        'Up to Date! 🎉',
+        `Aap pehle se hi latest version (v${currentVersion}) use kar rahe hain.`
+      );
     }
   } catch (error) {
-    // Fail silently in development if offline
-    console.log('[UpdateService] Check error:', error);
+    if (isManualCheck) {
+      Alert.alert('Update Check Failed', 'Network connection check karein.');
+    }
   }
 }
