@@ -12,16 +12,36 @@ import {
   View,
 } from 'react-native';
 import { BorderRadius, Palette, Shadows, Spacing } from '../src/constants/theme';
+import { useAuth } from '../src/context/AuthContext';
 import { checkForAppUpdate } from '../src/services/updateService';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { user, logout } = useAuth();
 
   const handleSimulateSync = () => {
     Alert.alert(
       'System Diagnostics',
-      'All local database tables verified:\n\n• Blood Stock: 8 Groups synced\n• Active Camps: 3 Scheduled\n• Requisitions: 7 In Queue\n• Storage Temp: 4.2°C (Optimal)',
+      'All local database tables verified:\n\n• Blood Stock: 8 Groups synced\n• Active Camps: 3 Scheduled\n• Requisitions: Live Connected\n• Storage Temp: 4.2°C (Optimal)',
       [{ text: 'Dismiss', style: 'default' }]
+    );
+  };
+
+  const handleSignOut = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out of the hospital portal?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+            router.replace('/login' as any);
+          },
+        },
+      ]
     );
   };
 
@@ -47,8 +67,13 @@ export default function ProfileScreen() {
           <View style={styles.avatarLarge}>
             <Ionicons name="shield-checkmark" size={28} color={Palette.white} />
           </View>
-          <Text style={styles.adminName}>Dr. S. K. Verma</Text>
-          <Text style={styles.adminRole}>Chief Medical Officer & Administrator</Text>
+          <Text style={styles.adminName}>{user?.name || 'Dr. S. K. Verma'}</Text>
+          <Text style={styles.adminRole}>
+            {user?.role ? `${user.role.toUpperCase()} • ${user.email}` : 'Chief Medical Officer & Administrator'}
+          </Text>
+          {user?.phone ? (
+            <Text style={styles.phoneText}>{user.phone}</Text>
+          ) : null}
           <Text style={styles.orgText}>District Hospital, Durg, Chhattisgarh</Text>
         </View>
 
@@ -103,28 +128,28 @@ export default function ProfileScreen() {
 
           <TouchableOpacity
             style={styles.menuItem}
-            onPress={() => router.push('/(tabs)/requests')}>
+            onPress={() => router.push('/(tabs)/camps')}>
             <View style={styles.menuLeft}>
-              <Ionicons name="document-text" size={17} color={Palette.moderate} />
-              <Text style={styles.menuText}>Ward Requisitions</Text>
+              <Ionicons name="calendar" size={17} color={Palette.moderate} />
+              <Text style={styles.menuText}>Blood Donation Camps</Text>
             </View>
             <Ionicons name="chevron-forward" size={16} color={Palette.textMuted} />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.menuItem}
-            onPress={() => router.push('/notifications')}>
+            onPress={() => router.push('/(tabs)/requests')}>
             <View style={styles.menuLeft}>
-              <Ionicons name="notifications" size={17} color={Palette.warning} />
-              <Text style={styles.menuText}>Operational Alerts</Text>
+              <Ionicons name="git-pull-request" size={17} color={Palette.warning} />
+              <Text style={styles.menuText}>Patient Blood Requisitions</Text>
             </View>
             <Ionicons name="chevron-forward" size={16} color={Palette.textMuted} />
           </TouchableOpacity>
         </View>
 
-        {/* System Diagnostics & Update Checker */}
+        {/* System Diagnostics & Updates */}
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>System Status & App Updates</Text>
+          <Text style={styles.sectionTitle}>System Status & Cloud Sync</Text>
 
           <View style={styles.statusRow}>
             <View style={styles.dotGreen} />
@@ -146,10 +171,19 @@ export default function ProfileScreen() {
             <Ionicons name="cloud-download" size={16} color={Palette.white} style={{ marginRight: 6 }} />
             <Text style={[styles.checkBtnText, { color: Palette.white }]}>Check for App Updates</Text>
           </TouchableOpacity>
+
+          {/* Sign Out Button */}
+          <TouchableOpacity
+            style={[styles.checkBtn, styles.signOutBtn]}
+            onPress={handleSignOut}
+            activeOpacity={0.8}>
+            <Ionicons name="log-out-outline" size={16} color={Palette.critical} style={{ marginRight: 6 }} />
+            <Text style={[styles.checkBtnText, { color: Palette.critical }]}>Sign Out</Text>
+          </TouchableOpacity>
         </View>
 
         <Text style={styles.versionFooter}>
-          RaktSetu Mobile v1.0.0 • Durg District Blood Center
+          RaktSetu Mobile v1.1.0 • Durg District Blood Center
         </Text>
       </ScrollView>
     </SafeAreaView>
@@ -179,17 +213,14 @@ const styles = StyleSheet.create({
     backgroundColor: Palette.backgroundSubtle,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Palette.borderLight,
   },
   pressed: {
     opacity: 0.7,
   },
   headerTitle: {
-    fontSize: 17,
-    fontWeight: '800',
+    fontSize: 16,
+    fontWeight: '700',
     color: Palette.textPrimary,
-    letterSpacing: -0.3,
   },
   headerSpacer: {
     width: 38,
@@ -200,70 +231,78 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: Spacing.screenPadding,
-    paddingBottom: 36,
-    gap: 12,
+    gap: Spacing.md,
   },
   adminCard: {
     backgroundColor: Palette.white,
     borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
+    padding: Spacing.xl,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: Palette.borderLight,
     ...Shadows.card,
   },
   avatarLarge: {
-    width: 60,
-    height: 60,
-    borderRadius: BorderRadius.full,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: Palette.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.sm,
-    ...Shadows.floating,
+    ...Shadows.subtle,
   },
   adminName: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '800',
     color: Palette.textPrimary,
-    letterSpacing: -0.3,
+    marginBottom: 2,
   },
   adminRole: {
-    fontSize: 13,
-    color: Palette.textSecondary,
+    fontSize: 12,
     fontWeight: '600',
-    marginTop: 3,
+    color: Palette.primary,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  phoneText: {
+    fontSize: 12,
+    color: Palette.textSecondary,
+    marginBottom: 4,
   },
   orgText: {
     fontSize: 12,
     color: Palette.textMuted,
-    marginTop: 4,
+    textAlign: 'center',
   },
   sectionCard: {
     backgroundColor: Palette.white,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md + 2,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
     borderWidth: 1,
     borderColor: Palette.borderLight,
-    ...Shadows.card,
     gap: 10,
+    ...Shadows.subtle,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
     color: Palette.textPrimary,
-    letterSpacing: -0.2,
-    marginBottom: 4,
+    letterSpacing: 0.3,
+    textTransform: 'uppercase',
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 3,
+    paddingVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: Palette.borderSubtle,
   },
   detailLabel: {
     fontSize: 13,
-    color: Palette.textMuted,
+    color: Palette.textSecondary,
+    fontWeight: '500',
   },
   detailVal: {
     fontSize: 13,
@@ -272,9 +311,9 @@ const styles = StyleSheet.create({
   },
   menuItem: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
+    alignItems: 'center',
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: Palette.borderSubtle,
   },
@@ -320,6 +359,11 @@ const styles = StyleSheet.create({
     backgroundColor: Palette.primary,
     borderColor: Palette.primary,
     ...Shadows.subtle,
+  },
+  signOutBtn: {
+    backgroundColor: Palette.criticalBg,
+    borderColor: Palette.criticalBorder,
+    marginTop: 6,
   },
   checkBtnText: {
     fontSize: 13,

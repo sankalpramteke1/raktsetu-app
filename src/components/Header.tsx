@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BorderRadius, Palette, Shadows, Spacing } from '../constants/theme';
+import { useAuth } from '../context/AuthContext';
 import { notificationService } from '../services/notificationService';
 
 interface HeaderProps {
@@ -17,6 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   showGreeting = false,
 }) => {
   const router = useRouter();
+  const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(3);
 
   useEffect(() => {
@@ -25,9 +27,9 @@ export const Header: React.FC<HeaderProps> = ({
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning 👋';
-    if (hour < 17) return 'Good afternoon ☀️';
-    return 'Good evening 🌙';
+    const timeWord = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    const firstName = user?.name ? user.name.split(' ')[0] : 'Staff';
+    return `${timeWord}, ${firstName} 👋`;
   };
 
   return (
