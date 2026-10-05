@@ -1,20 +1,19 @@
 <div align="center">
 
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=0,1,2,3&height=220&section=header&text=RaktSetu%20%7C%20रक्तसेतु&fontSize=50&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Next-Gen%20Intelligent%20Blood%20Banking%20%26%20Clinical%20Requisition%20Ecosystem&descSize=16&descAlignY=58&descAlign=50" alt="RaktSetu Banner" width="100%" />
+  <img src="./assets/images/icon.png" width="100" height="100" alt="RaktSetu Emblem" style="border-radius: 22px;" />
+
+  # 🩸 RaktSetu • रक्तसेतु
+  ### Intelligent Clinical Blood Banking & Automated Requisition Ecosystem
+
+  *Engineered for High-Velocity Transfusions • Real-Time Serology • Zero-Paperwork Latency*
 
   <br/>
 
-  [![License](https://img.shields.io/badge/Licence-CG%2FBB%2F2018%2F042--R-E11D48?style=for-the-badge&logo=shield&logoColor=white)](https://github.com/sankalpramteke1/raktsetu-app)
   [![Expo SDK](https://img.shields.io/badge/Expo%20SDK-57.0-000000?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev)
   [![React Native](https://img.shields.io/badge/React%20Native-0.86.3-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactnative.dev)
   [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20v5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
   [![CI/CD](https://img.shields.io/badge/Automated%20Builds-GitHub%20Actions%20CI-22C55E?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/sankalpramteke1/raktsetu-app/actions)
   [![Security](https://img.shields.io/badge/Security-AES--256%20SecureStore-F59E0B?style=for-the-badge&logo=auth0&logoColor=white)](https://github.com/sankalpramteke1/raktsetu-app)
-
-  <br/>
-
-  **Durg District Central Blood Center • District Hospital, Durg (Chhattisgarh)**  
-  *Bridging Emergency Transfusions with Zero Paperwork Latency*
 
 </div>
 
@@ -22,11 +21,11 @@
 
 ## ⚡ Mission-Critical Architecture
 
-**RaktSetu** (*रक्तसेतु* — Bridge of Blood) is an enterprise medical mobility application engineered to eliminate critical time delays in emergency blood banking. Designed for hospital clinical staff, pathologists, and blood bank coordinators, it unifies **statutory requisitioning**, **real-time serological inventory**, **voluntary donor registries**, and **blood donation camps** into a synchronized, resilient ecosystem.
+**RaktSetu** (*रक्तसेतु* — Bridge of Blood) is an enterprise medical mobility application engineered to eliminate critical time delays in emergency blood banking. Designed for hospital clinical staff, pathologists, and blood bank coordinators, it unifies **clinical requisitioning**, **real-time serological inventory**, **voluntary donor registries**, and **blood donation camps** into a synchronized, resilient ecosystem.
 
 ```
  ┌────────────────┐          ┌───────────────────────┐          ┌────────────────┐
- │ Hospital Ward  │  Form 13 │  RaktSetu App Engine  │  REST    │ Central Node   │
+ │ Hospital Ward  │  Req Form│  RaktSetu App Engine  │  REST    │ Central Node   │
  │ Emergency Desk ├─────────►│  Offline-Resilient    ├─────────►│ SQLite / DB    │
  └────────────────┘          │  Client Architecture  │  JWT/SSL │ Server API     │
                              └───────────┬───────────┘          └───────┬────────┘
@@ -42,9 +41,9 @@
 
 ## 💎 High-Tech Innovations & Capabilities
 
-### 🩺 Statutory Form 13 Digital Twin
-- **Zero-Latency Clinical Pipeline:** Real-time digital replica of Government Form 13 (*Blood Requisition & Cross-Match Report*).
-- **Intelligent Triage & Validation:** Automatic urgency scoring (Emergency STAT vs. Routine Elective) with doctor and phlebotomist signature validation.
+### 🩺 Clinical Blood Requisition Pipeline
+- **Zero-Latency Clinical Pipeline:** Real-time digital requisitioning workflow eliminating physical paper delays between hospital wards and blood storage centers.
+- **Intelligent Triage & Validation:** Automatic urgency categorization (Emergency STAT vs. Routine Elective) with doctor and collecting staff verification.
 - **Cross-Match Traceability:** Tracks blood units through pre-transfusion serology, compatibility verification, and issue authorization.
 
 ### 🩸 Real-Time Serology & Cold-Chain Inventory
@@ -52,9 +51,9 @@
 - **TTI Quarantining:** Real-time safety status gating (HIV 1/2, HBsAg, HCV, VDRL, Malaria Parasite) ensuring zero unverified unit issuance.
 - **Dynamic Depletion Warning Engine:** Visual analytics alerting clinical staff whenever stocks breach critical thresholds (e.g. O-, AB- reserves).
 
-### 🔐 Hardware-Backed Medical Security
-- **AES-256 Storage (`expo-secure-store`):** Cryptographic token vault utilizing Android Keystore / iOS Keychain for hospital credentials.
-- **Strict Role-Based Access Control (RBAC):** Distinct scopes separating Chief Medical Officers, duty nurses, blood center staff, and community organizers.
+### 🔐 Hardware-Backed Security
+- **AES-256 Storage (`expo-secure-store`):** Cryptographic token vault utilizing Android Keystore / iOS Keychain for bearer authentication.
+- **Strict Role-Based Access Control (RBAC):** Distinct scopes separating Administrators, medical officers, clinical nurses, and portal coordinators.
 - **Offline Reliability:** Automatic local caching fallback keeps critical inventory readable even during erratic hospital network drops.
 
 ### 🚀 Autonomous CI/CD & Live In-App Update Engine
@@ -151,32 +150,22 @@ Publishing a new release triggers automated cloud compilation:
 ```bash
 # 1. Stage and commit updates
 git add .
-git commit -m "feat(core): release v1.1.0 with live backend integration"
+git commit -m "feat(core): release updates"
 
 # 2. Stamp an annotated semantic release tag
-git tag -a v1.1.0 -m "Release v1.1.0: Real-time inventory and hospital auth gate"
+git tag -a v1.0.5 -m "Release v1.0.5: Updates and improvements"
 
 # 3. Synchronize branch and release tags
 git push origin main
-git push origin v1.1.0
+git push origin v1.0.5
 ```
 
-> **Automated Result:** GitHub Actions instantly builds the signed `.apk` file and publishes it to the repository's **Releases** tab for immediate hospital deployment.
+> **Automated Result:** GitHub Actions instantly builds the signed `.apk` file and publishes it to the repository's **Releases** tab for immediate deployment.
 
 ---
 
-## 🏛️ Institutional Accreditation & Compliance
-
 <div align="center">
 
-```
-  FACILITY          : Durg District Central Blood Center
-  LOCATION          : District Hospital, Durg - 491001, Chhattisgarh
-  LICENCE NUMBER    : CG/BB/2018/042-R · Statutory Ref No. 28C/5/96
-  COLD STORAGE CAP. : 3 Industrial Refrigeration Units (350+ Units)
-  EMERGENCY LINE    : 0788-2322333 • Ext 204
-```
-
-*Built with deep devotion for healthcare workers, emergency phlebotomists, and donors saving lives every single day.*
+*Engineered with deep devotion for healthcare workers, emergency phlebotomists, and donors saving lives every single day.*
 
 </div>
