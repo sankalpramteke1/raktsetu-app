@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   SafeAreaView,
   ScrollView,
@@ -16,6 +18,7 @@ import {
 import { BorderRadius, Palette, Shadows, Spacing } from '../src/constants/theme';
 import { useAuth } from '../src/context/AuthContext';
 import { API_BASE_URL } from '../src/services/apiClient';
+import { AppVersionInfo, fetchLatestAppVersion, isNewerVersion } from '../src/services/updateService';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -26,6 +29,42 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Update banner state
+  const [updateInfo, setUpdateInfo] = useState<AppVersionInfo | null>(null);
+  const [updateDismissed, setUpdateDismissed] = useState(false);
+  const [downloadingUpdate, setDownloadingUpdate] = useState(false);
+
+  // Check for updates on mount
+  useEffect(() => {
+    const checkUpdate = async () => {
+      try {
+        const currentVersion = Constants.expoConfig?.version || '1.0.0';
+        const latest = await fetchLatestAppVersion();
+        if (latest && isNewerVersion(latest.version, currentVersion)) {
+          setUpdateInfo(latest);
+        }
+      } catch {
+        // Silently ignore update check errors on login screen
+      }
+    };
+    checkUpdate();
+  }, []);
+
+  const handleDownloadUpdate = async () => {
+    if (!updateInfo?.downloadUrl) return;
+    setDownloadingUpdate(true);
+    try {
+      const canOpen = await Linking.canOpenURL(updateInfo.downloadUrl);
+      if (canOpen) {
+        await Linking.openURL(updateInfo.downloadUrl);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setDownloadingUpdate(false);
+    }
+  };
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -79,6 +118,49 @@ export default function LoginScreen() {
               <Text style={styles.liveBadgeText}>Central Hospital Network Live</Text>
             </View>
           </View>
+          {/* Update Banner */}
+          {updateInfo && !updateDismissed && (
+            <View style={styles.updateBanner}>
+              <View style={styles.updateBannerTop}>
+                <View style={styles.updateIconWrap}>
+                  <Ionicons name="cloud-download-outline" size={20} color={Palette.white} />
+                </View>
+                <View style={styles.updateTextWrap}>
+                  <Text style={styles.updateTitle}>Naya Update Available! 🎉</Text>
+                  <Text style={styles.updateVersion}>
+                    Version {updateInfo.version}
+                    {updateInfo.fileSize ? `  •  ${updateInfo.fileSize}` : ''}
+                    {updateInfo.releaseDate ? `  •  ${updateInfo.releaseDate}` : ''}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => setUpdateDismissed(true)}
+                  hitSlop={10}
+                  style={styles.updateDismiss}>
+                  <Ionicons name="close" size={16} color="rgba(255,255,255,0.7)" />
+                </TouchableOpacity>
+              </View>
+              {updateInfo.releaseNotes ? (
+                <Text style={styles.updateNotes} numberOfLines={2}>
+                  {updateInfo.releaseNotes}
+                </Text>
+              ) : null}
+              <TouchableOpacity
+                style={styles.updateBtn}
+                onPress={handleDownloadUpdate}
+                activeOpacity={0.85}
+                disabled={downloadingUpdate}>
+                {downloadingUpdate ? (
+                  <ActivityIndicator size="small" color={Palette.primary} />
+                ) : (
+                  <>
+                    <Ionicons name="download-outline" size={15} color={Palette.primary} />
+                    <Text style={styles.updateBtnText}>Download APK ({updateInfo.version})</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
 
           {/* Login Card */}
           <View style={styles.card}>
@@ -212,6 +294,66 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xxl + Spacing.lg,
     justifyContent: 'center',
   },
+  // ─── Update Banner ────────────────────────────────────────────────────────
+  updateBanner: {
+    backgroundColor: '#1a6e3c',
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    marginBottom: Spacing.lg,
+    ...Shadows.card,
+  },
+  updateBannerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  updateIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+  },
+  updateTextWrap: {
+    flex: 1,
+  },
+  updateTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Palette.white,
+    marginBottom: 2,
+  },
+  updateVersion: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.75)',
+    fontWeight: '500',
+  },
+  updateDismiss: {
+    padding: 4,
+  },
+  updateNotes: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.8)',
+    lineHeight: 17,
+    marginBottom: Spacing.md,
+  },
+  updateBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: Palette.white,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: 10,
+  },
+  updateBtnText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1a6e3c',
+  },
+  // ─────────────────────────────────────────────────────────────────────────
   brandHeader: {
     alignItems: 'center',
     marginBottom: Spacing.xxl,
