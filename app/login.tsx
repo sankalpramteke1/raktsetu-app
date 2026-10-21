@@ -178,16 +178,9 @@ export default function LoginScreen() {
               <View style={styles.chipRow}>
                 <TouchableOpacity
                   style={styles.presetChip}
-                  onPress={() => handleQuickFill('admin@ibitf.org', 'Admin@123')}>
+                  onPress={() => handleQuickFill('dhd@www.ibitf.co.in', 'IITBhilai@2026')}>
                   <Ionicons name="shield-checkmark" size={13} color={Palette.primary} />
-                  <Text style={styles.presetChipText}>Admin (admin@ibitf.org)</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.presetChip}
-                  onPress={() => handleQuickFill('admin2@ibitf.org', 'Admin@123')}>
-                  <Ionicons name="person" size={13} color={Palette.primary} />
-                  <Text style={styles.presetChipText}>Staff (admin2@ibitf.org)</Text>
+                  <Text style={styles.presetChipText}>Admin (dhd@www.ibitf.co.in)</Text>
                 </TouchableOpacity>
               </View>
             </View>

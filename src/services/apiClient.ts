@@ -68,9 +68,10 @@ export interface AuthUser {
   id: number;
   email: string;
   name: string;
-  role: 'admin' | 'staff' | string;
+  role?: 'admin' | 'staff' | string; // Optional: some endpoints don't return role
   phone?: string;
   status?: string;
+  created_at?: string;
 }
 
 export interface LoginResponse {

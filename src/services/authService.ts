@@ -19,6 +19,18 @@ export const authService = {
       method: 'GET',
     });
     if (data.user) {
+      // Live server may not return 'role' in /auth/me — extract it from JWT if missing
+      if (!data.user.role) {
+        try {
+          const token = await authStorage.getToken();
+          if (token) {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            data.user.role = payload.role || 'staff';
+          }
+        } catch {
+          data.user.role = 'staff';
+        }
+      }
       await authStorage.setUser(data.user);
     }
     return data.user;
