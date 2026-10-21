@@ -9,6 +9,77 @@ import {
   CampSummaryStats,
   CampType,
 } from '../types/camp';
+import { apiRequest } from './apiClient';
+
+interface BackendCampRequest {
+  id: number;
+  organization_name?: string;
+  organizer?: string;
+  camp_name?: string;
+  name?: string;
+  venue?: string;
+  address?: string;
+  city?: string;
+  district?: string;
+  state?: string;
+  pincode?: string;
+  camp_date?: string;
+  date?: string;
+  start_time?: string;
+  end_time?: string;
+  contact_person?: string;
+  contact_number?: string;
+  contact_phone?: string;
+  expected_donors?: number;
+  target_units?: number;
+  units_collected?: number;
+  status?: string;
+  description?: string;
+  camp_type?: string;
+}
+
+const mapBackendStatus = (status?: string): CampStatus => {
+  switch (status?.toLowerCase()) {
+    case 'ongoing':
+    case 'in_progress':
+      return 'Ongoing';
+    case 'completed':
+      return 'Completed';
+    case 'cancelled':
+      return 'Cancelled';
+    default:
+      return 'Upcoming';
+  }
+};
+
+const mapBackendCamp = (c: BackendCampRequest): BloodDonationCamp => {
+  return {
+    id: `CAMP-${c.id}`,
+    name: c.camp_name || c.name || `${c.organization_name || 'Community'} Blood Donation Camp`,
+    type: (c.camp_type as CampType) || 'Community Camp',
+    organizer: c.organization_name || c.organizer || 'Local Organization',
+    contactPerson: c.contact_person || 'Coordinator',
+    contactNumber: c.contact_number || c.contact_phone || '+91 94252 00000',
+    date: (c.camp_date || c.date || new Date().toISOString().slice(0, 10)),
+    startTime: c.start_time || '09:00 AM',
+    endTime: c.end_time || '04:00 PM',
+    venue: c.venue || 'City Community Hall',
+    address: c.address || 'Civil Lines',
+    city: c.city || 'Durg',
+    district: c.district || 'Durg',
+    state: c.state || 'Chhattisgarh',
+    pincode: c.pincode || '491001',
+    expectedDonors: c.expected_donors || 50,
+    targetUnits: c.target_units || 40,
+    unitsCollected: c.units_collected || 0,
+    status: mapBackendStatus(c.status),
+    description: c.description || 'Voluntary blood donation camp.',
+    participants: [],
+    groupCollection: {
+      'O+': 0, 'B+': 0, 'A+': 0, 'O-': 0, 'AB+': 0, 'A-': 0, 'B-': 0, 'AB-': 0,
+    },
+  };
+};
 
 // In-memory state holding the camps
 let campsState: BloodDonationCamp[] = [...INITIAL_CAMPS];
@@ -28,10 +99,26 @@ export const campService = {
   },
 
   getAllCamps: async (): Promise<BloodDonationCamp[]> => {
+    try {
+      const res = await apiRequest<{ requests?: BackendCampRequest[]; camps?: BackendCampRequest[] }>('/camp-requests/scheduled');
+      const list = res?.requests || res?.camps || (Array.isArray(res) ? res : null);
+      if (list && list.length > 0) {
+        return list.map(mapBackendCamp);
+      }
+    } catch (e) {
+      console.warn('Using local fallback for camps list:', e);
+    }
     return Promise.resolve([...campsState]);
   },
 
   getCampById: async (id: string): Promise<BloodDonationCamp | undefined> => {
+    try {
+      const all = await campService.getAllCamps();
+      const found = all.find((c) => c.id === id || c.id.endsWith(id));
+      if (found) return found;
+    } catch (e) {
+      console.warn(`Failed to fetch camp ${id} from API:`, e);
+    }
     return Promise.resolve(campsState.find((c) => c.id === id));
   },
 

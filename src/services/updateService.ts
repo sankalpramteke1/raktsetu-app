@@ -1,9 +1,10 @@
 import { Alert, Linking, Platform } from 'react-native';
 import Constants from 'expo-constants';
+import { API_BASE_URL } from './apiClient';
 
 const GITHUB_REPO = 'sankalpramteke1/raktsetu-app';
 const GITHUB_RELEASES_API = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
-const BACKEND_VERSION_API = 'http://10.0.2.2:4000/api/public/app-version';
+const BACKEND_VERSION_API = `${API_BASE_URL}/public/app-version`;
 
 export interface AppVersionInfo {
   appName: string;

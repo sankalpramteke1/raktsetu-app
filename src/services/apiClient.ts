@@ -12,11 +12,8 @@ const getDefaultApiHost = (): string => {
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
-  if (Platform.OS === 'web') {
-    return 'http://localhost:4000/api';
-  }
-  // Mobile device/emulator default LAN address
-  return 'http://10.50.28.218:4000/api';
+  // Default to live production server
+  return 'https://www.ibitf.co.in/medtech/bloodbank/api';
 };
 
 export const API_BASE_URL = getDefaultApiHost();
