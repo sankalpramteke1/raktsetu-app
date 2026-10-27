@@ -88,11 +88,6 @@ export default function LoginScreen() {
     }
   };
 
-  const handleQuickFill = (fillEmail: string, fillPass: string) => {
-    setEmail(fillEmail);
-    setPassword(fillPass);
-    setErrorMessage(null);
-  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -188,7 +183,7 @@ export default function LoginScreen() {
                 />
                 <TextInput
                   style={styles.input}
-                  placeholder="e.g. admin@ibitf.org"
+                  placeholder="Enter your official email"
                   placeholderTextColor={Palette.textMuted}
                   value={email}
                   onChangeText={(val) => {
@@ -254,18 +249,7 @@ export default function LoginScreen() {
               )}
             </TouchableOpacity>
 
-            {/* Quick Fill Chips for Testing */}
-            <View style={styles.quickFillSection}>
-              <Text style={styles.quickFillHeader}>Demo Authorized Logins:</Text>
-              <View style={styles.chipRow}>
-                <TouchableOpacity
-                  style={styles.presetChip}
-                  onPress={() => handleQuickFill('dhd@www.ibitf.co.in', 'IITBhilai@2026')}>
-                  <Ionicons name="shield-checkmark" size={13} color={Palette.primary} />
-                  <Text style={styles.presetChipText}>Admin (dhd@www.ibitf.co.in)</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+
           </View>
 
           {/* Connection Info */}
@@ -492,40 +476,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
-  quickFillSection: {
-    marginTop: Spacing.xl,
-    paddingTop: Spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: Palette.borderSubtle,
-  },
-  quickFillHeader: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: Palette.textMuted,
-    marginBottom: Spacing.sm,
-    textTransform: 'uppercase',
-  },
-  chipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
-  },
-  presetChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: Palette.primaryMuted,
-    borderColor: Palette.primarySurface,
-    borderWidth: 1,
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 6,
-  },
-  presetChipText: {
-    fontSize: 11,
-    color: Palette.primary,
-    fontWeight: '600',
-  },
+
   footerInfo: {
     flexDirection: 'row',
     alignItems: 'center',

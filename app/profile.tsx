@@ -67,9 +67,9 @@ export default function ProfileScreen() {
           <View style={styles.avatarLarge}>
             <Ionicons name="shield-checkmark" size={28} color={Palette.white} />
           </View>
-          <Text style={styles.adminName}>{user?.name || 'Dr. S. K. Verma'}</Text>
+          <Text style={styles.adminName}>{user?.name || 'Staff Member'}</Text>
           <Text style={styles.adminRole}>
-            {user?.role ? `${user.role.toUpperCase()} • ${user.email}` : 'Chief Medical Officer & Administrator'}
+            {user?.role ? `${user.role.toUpperCase()} • ${user.email}` : (user?.email || 'Authorized Hospital Staff')}
           </Text>
           {user?.phone ? (
             <Text style={styles.phoneText}>{user.phone}</Text>
