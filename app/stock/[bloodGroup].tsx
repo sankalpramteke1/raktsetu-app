@@ -23,8 +23,26 @@ export default function StockDetailScreen() {
   const [bags, setBags] = useState<BloodBag[]>([]);
 
   useEffect(() => {
-    bloodStockService.getStockByGroup(bloodGroup).then(setStockItem);
-    bloodStockService.getBagsForGroup(bloodGroup).then(setBags);
+    let isMounted = true;
+    bloodStockService
+      .getStockByGroup(bloodGroup)
+      .then((item) => {
+        if (isMounted) setStockItem(item);
+      })
+      .catch(() => {});
+
+    bloodStockService
+      .getBagsForGroup(bloodGroup)
+      .then((b) => {
+        if (isMounted) setBags(b);
+      })
+      .catch(() => {
+        if (isMounted) setBags([]);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [bloodGroup]);
 
   // Derive counts required by the user prompt:

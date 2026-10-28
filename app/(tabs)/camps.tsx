@@ -52,16 +52,27 @@ export default function CampsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const loadData = useCallback(async () => {
-    const [fetchedCamps, fetchedStats] = await Promise.all([
-      campService.searchCamps(
-        searchQuery,
-        selectedStatus,
-        selectedType === 'All Types' ? 'All' : selectedType
-      ),
-      campService.getCampStats(),
-    ]);
-    setCamps(fetchedCamps);
-    setStats(fetchedStats);
+    try {
+      const [fetchedCamps, fetchedStats] = await Promise.all([
+        campService
+          .searchCamps(
+            searchQuery,
+            selectedStatus,
+            selectedType === 'All Types' ? 'All' : selectedType
+          )
+          .catch(() => []),
+        campService.getCampStats().catch(() => ({
+          upcoming: 0,
+          ongoing: 0,
+          completed: 0,
+          totalUnits: 0,
+        })),
+      ]);
+      setCamps(fetchedCamps);
+      setStats(fetchedStats);
+    } catch (e) {
+      console.warn('Error loading camps:', e);
+    }
   }, [searchQuery, selectedStatus, selectedType]);
 
   useEffect(() => {

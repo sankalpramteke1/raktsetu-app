@@ -11,10 +11,10 @@ interface Props {
 }
 
 export const TodayOverviewCard: React.FC<Props> = ({
-  collectedUnits = 24,
-  issuedUnits = 17,
-  newDonors = 8,
-  pendingRequests = 7,
+  collectedUnits = 0,
+  issuedUnits = 0,
+  newDonors = 0,
+  pendingRequests = 0,
 }) => {
   const todayStr = new Date().toLocaleDateString('en-IN', {
     day: 'numeric',

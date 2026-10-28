@@ -1,5 +1,3 @@
-import { INITIAL_BLOOD_STOCK, INITIAL_STOCK_STATS } from '../data/bloodStock';
-import { BLOOD_BAGS, getBagsForGroup } from '../data/bloodBags';
 import { BloodBag, BloodGroup, BloodStockItem, StockStatus, StockSummaryStats } from '../types/blood';
 import { apiRequest } from './apiClient';
 
@@ -90,77 +88,58 @@ const mapBatchToBloodBag = (batch: BackendBatchItem): BloodBag => {
 
 export const bloodStockService = {
   getAllStock: async (): Promise<BloodStockItem[]> => {
-    try {
-      const summary = await apiRequest<DashboardSummaryResponse>('/dashboard/summary');
-      if (summary?.inventory && summary.inventory.length > 0) {
-        return summary.inventory.map(mapBackendStockItem);
-      }
-    } catch (e) {
-      console.warn('Using local fallback for stock items:', e);
+    const summary = await apiRequest<DashboardSummaryResponse>('/dashboard/summary');
+    if (summary?.inventory && summary.inventory.length > 0) {
+      return summary.inventory.map(mapBackendStockItem);
     }
-    return [...INITIAL_BLOOD_STOCK];
+    return [];
   },
 
   getStockByGroup: async (group: BloodGroup): Promise<BloodStockItem | undefined> => {
-    try {
-      const all = await bloodStockService.getAllStock();
-      const found = all.find((item) => item.bloodGroup === group);
-      if (found) return found;
-    } catch {
-      // fallback
-    }
-    return INITIAL_BLOOD_STOCK.find((item) => item.bloodGroup === group);
+    const all = await bloodStockService.getAllStock();
+    return all.find((item) => item.bloodGroup === group);
   },
 
   getStockSummary: async (): Promise<StockSummaryStats> => {
-    try {
-      const summary = await apiRequest<DashboardSummaryResponse>('/dashboard/summary');
-      if (summary?.inventory) {
-        const criticalCount = summary.inventory.filter(
-          (i) => i.level === 'critical' || i.units_available <= i.critical_threshold
-        ).length;
-        const lowCount = summary.inventory.filter(
-          (i) => i.level === 'low' || (i.units_available <= i.low_threshold && i.units_available > i.critical_threshold)
-        ).length;
+    const summary = await apiRequest<DashboardSummaryResponse>('/dashboard/summary');
+    if (summary?.inventory) {
+      const criticalCount = summary.inventory.filter(
+        (i) => i.level === 'critical' || i.units_available <= i.critical_threshold
+      ).length;
+      const lowCount = summary.inventory.filter(
+        (i) => i.level === 'low' || (i.units_available <= i.low_threshold && i.units_available > i.critical_threshold)
+      ).length;
 
-        return {
-          totalUnits: summary.totals?.total_units ?? summary.inventory.reduce((a, b) => a + b.units_available, 0),
-          criticalCount,
-          lowCount,
-          addedToday: summary.pipeline?.bags_tested_today || 0,
-          issuedToday: summary.pipeline?.issued_today || 0,
-        };
-      }
-    } catch (e) {
-      console.warn('Using local fallback for stock summary:', e);
+      return {
+        totalUnits: summary.totals?.total_units ?? summary.inventory.reduce((a, b) => a + b.units_available, 0),
+        criticalCount,
+        lowCount,
+        addedToday: summary.pipeline?.bags_tested_today || 0,
+        issuedToday: summary.pipeline?.issued_today || 0,
+      };
     }
-    return { ...INITIAL_STOCK_STATS };
+    return {
+      totalUnits: 0,
+      criticalCount: 0,
+      lowCount: 0,
+      addedToday: 0,
+      issuedToday: 0,
+    };
   },
 
   getBagsForGroup: async (group: BloodGroup): Promise<BloodBag[]> => {
-    try {
-      const batches = await apiRequest<BackendBatchItem[]>('/inventory/batches');
-      if (Array.isArray(batches) && batches.length > 0) {
-        const filtered = batches.filter((b) => b.blood_type === group);
-        if (filtered.length > 0) {
-          return filtered.map(mapBatchToBloodBag);
-        }
-      }
-    } catch (e) {
-      console.warn('Using local fallback for blood bags:', e);
+    const batches = await apiRequest<BackendBatchItem[]>('/inventory/batches');
+    if (Array.isArray(batches) && batches.length > 0) {
+      return batches.filter((b) => b.blood_type === group).map(mapBatchToBloodBag);
     }
-    return getBagsForGroup(group);
+    return [];
   },
 
   getAllBags: async (): Promise<BloodBag[]> => {
-    try {
-      const batches = await apiRequest<BackendBatchItem[]>('/inventory/batches');
-      if (Array.isArray(batches) && batches.length > 0) {
-        return batches.map(mapBatchToBloodBag);
-      }
-    } catch (e) {
-      console.warn('Using local fallback for all blood bags:', e);
+    const batches = await apiRequest<BackendBatchItem[]>('/inventory/batches');
+    if (Array.isArray(batches) && batches.length > 0) {
+      return batches.map(mapBatchToBloodBag);
     }
-    return [...BLOOD_BAGS];
+    return [];
   },
 };

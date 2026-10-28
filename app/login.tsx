@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { BorderRadius, Palette, Shadows, Spacing } from '../src/constants/theme';
 import { useAuth } from '../src/context/AuthContext';
-import { API_BASE_URL } from '../src/services/apiClient';
+
 import { AppVersionInfo, fetchLatestAppVersion, isNewerVersion } from '../src/services/updateService';
 
 export default function LoginScreen() {
@@ -252,11 +252,7 @@ export default function LoginScreen() {
 
           </View>
 
-          {/* Connection Info */}
-          <View style={styles.footerInfo}>
-            <Ionicons name="globe-outline" size={13} color={Palette.textMuted} />
-            <Text style={styles.footerInfoText}>Connected to: {API_BASE_URL}</Text>
-          </View>
+
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -477,15 +473,5 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  footerInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Spacing.xl,
-    gap: 6,
-  },
-  footerInfoText: {
-    fontSize: 11,
-    color: Palette.textMuted,
-  },
+
 });

@@ -19,10 +19,21 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const router = useRouter();
   const { user } = useAuth();
-  const [unreadCount, setUnreadCount] = useState(3);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    notificationService.getUnreadCount().then(setUnreadCount);
+    let isMounted = true;
+    notificationService
+      .getUnreadCount()
+      .then((count) => {
+        if (isMounted) setUnreadCount(count);
+      })
+      .catch(() => {
+        if (isMounted) setUnreadCount(0);
+      });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const getGreeting = () => {

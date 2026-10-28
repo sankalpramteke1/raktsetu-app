@@ -10,16 +10,13 @@ import {
   Text,
   View,
 } from 'react-native';
-import { ActivityItem } from '../../src/components/ActivityItem';
 import { BloodGroupCard } from '../../src/components/BloodGroupCard';
 import { Header } from '../../src/components/Header';
 import { RequestCard } from '../../src/components/RequestCard';
 import { BorderRadius, Palette, Shadows, Spacing } from '../../src/constants/theme';
-import { activityService } from '../../src/services/activityService';
 import { bloodStockService } from '../../src/services/bloodStockService';
 import { campService } from '../../src/services/campService';
 import { requestService } from '../../src/services/requestService';
-import { ActivityItemType } from '../../src/types/activity';
 import { BloodStockItem, StockSummaryStats } from '../../src/types/blood';
 import { BloodDonationCamp } from '../../src/types/camp';
 import { BloodRequest } from '../../src/types/request';
@@ -29,30 +26,27 @@ export default function DashboardScreen() {
   const [stockItems, setStockItems] = useState<BloodStockItem[]>([]);
   const [stockStats, setStockStats] = useState<StockSummaryStats | null>(null);
   const [pendingRequests, setPendingRequests] = useState<BloodRequest[]>([]);
-  const [recentActivities, setRecentActivities] = useState<ActivityItemType[]>([]);
   const [featuredCamp, setFeaturedCamp] = useState<BloodDonationCamp | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadData = async () => {
     try {
-      const [stock, stats, requests, acts, camps] = await Promise.all([
-        bloodStockService.getAllStock(),
-        bloodStockService.getStockSummary(),
-        requestService.getPendingRequests(),
-        activityService.getRecentActivities(3),
-        campService.getAllCamps(),
+      const [stock, stats, requests, camps] = await Promise.all([
+        bloodStockService.getAllStock().catch(() => []),
+        bloodStockService.getStockSummary().catch(() => null),
+        requestService.getPendingRequests().catch(() => []),
+        campService.getAllCamps().catch(() => []),
       ]);
       setStockItems(stock);
       setStockStats(stats);
       setPendingRequests(requests.slice(0, 2));
-      setRecentActivities(acts);
       const featured =
         camps.find((c) => c.status === 'Ongoing') ||
         camps.find((c) => c.status === 'Upcoming') ||
         camps[0];
       setFeaturedCamp(featured || null);
     } catch (e) {
-      console.error(e);
+      console.warn('Dashboard load error:', e);
     }
   };
 
@@ -170,11 +164,11 @@ export default function DashboardScreen() {
 
             <Pressable
               style={({ pressed }) => [styles.quickActionBtn, pressed && styles.pressed]}
-              onPress={() => router.push('/(tabs)/reports')}>
+              onPress={() => router.push('/(tabs)/donors')}>
               <View style={[styles.quickActionIcon, { backgroundColor: Palette.warningBg }]}>
-                <Ionicons name="bar-chart" size={22} color={Palette.warning} />
+                <Ionicons name="people" size={22} color={Palette.warning} />
               </View>
-              <Text style={styles.quickActionLabel}>Analytics</Text>
+              <Text style={styles.quickActionLabel}>Donors</Text>
             </Pressable>
           </View>
         </View>
@@ -314,19 +308,7 @@ export default function DashboardScreen() {
           </View>
         )}
 
-        {/* Recent Activity */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Activity Log</Text>
-          <View style={styles.activityList}>
-            {recentActivities.map((act, index) => (
-              <ActivityItem
-                key={act.id}
-                activity={act}
-                isLast={index === recentActivities.length - 1}
-              />
-            ))}
-          </View>
-        </View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -672,15 +654,5 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
   },
 
-  // Activity
-  activityList: {
-    backgroundColor: Palette.white,
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
-    borderColor: Palette.borderLight,
-    overflow: 'hidden',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 4,
-    ...Shadows.card,
-  },
+
 });

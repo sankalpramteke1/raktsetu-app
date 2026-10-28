@@ -73,16 +73,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="reports"
         options={{
+          href: null,
           title: 'Analytics',
-          tabBarIcon: ({ color, focused }) => (
-            <View style={[styles.iconWrapper, focused && styles.iconWrapperActive]}>
-              <Ionicons
-                name={focused ? 'pie-chart' : 'pie-chart-outline'}
-                size={21}
-                color={color}
-              />
-            </View>
-          ),
         }}
       />
     </Tabs>

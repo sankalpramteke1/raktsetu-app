@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BorderRadius, Palette, Shadows, Spacing } from '../constants/theme';
-import { DONORS } from '../data/donors';
+import { donorService } from '../services/donorService';
 import { CampParticipant, CampParticipantStatus } from '../types/camp';
+import { Donor } from '../types/donor';
 
 interface Props {
   participant: CampParticipant;
@@ -13,7 +14,12 @@ interface Props {
 
 export const CampParticipantCard: React.FC<Props> = ({ participant, onStatusChange }) => {
   const router = useRouter();
-  const donor = DONORS.find((d) => d.donorId === participant.donorId);
+  const [donor, setDonor] = useState<Donor | undefined>(undefined);
+
+  useEffect(() => {
+    donorService.getDonorById(participant.donorId).then(setDonor).catch(() => {});
+  }, [participant.donorId]);
+
 
   const getInitials = (name: string) => {
     const parts = name.trim().split(/\s+/);

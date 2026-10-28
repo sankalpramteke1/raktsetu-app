@@ -26,13 +26,13 @@ export default function StockScreen() {
   const loadStock = async () => {
     try {
       const [stockData, summaryData] = await Promise.all([
-        bloodStockService.getAllStock(),
-        bloodStockService.getStockSummary(),
+        bloodStockService.getAllStock().catch(() => []),
+        bloodStockService.getStockSummary().catch(() => null),
       ]);
       setItems(stockData);
       setSummary(summaryData);
     } catch (e) {
-      console.error(e);
+      console.warn('Stock load error:', e);
     }
   };
 

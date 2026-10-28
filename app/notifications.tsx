@@ -24,7 +24,18 @@ export default function NotificationsScreen() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('All');
 
   useEffect(() => {
-    notificationService.getNotifications().then(setNotifications);
+    let isMounted = true;
+    notificationService
+      .getNotifications()
+      .then((data) => {
+        if (isMounted) setNotifications(data);
+      })
+      .catch(() => {
+        if (isMounted) setNotifications([]);
+      });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const filterOptions: { label: string; value: CategoryFilter }[] = [

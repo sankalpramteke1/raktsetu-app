@@ -104,6 +104,26 @@ export const authStorage = {
   },
 };
 
+export type AuthErrorListener = () => void;
+const authErrorListeners: Set<AuthErrorListener> = new Set();
+
+export const subscribeToAuthErrors = (listener: AuthErrorListener): (() => void) => {
+  authErrorListeners.add(listener);
+  return () => {
+    authErrorListeners.delete(listener);
+  };
+};
+
+const notifyAuthError = () => {
+  authErrorListeners.forEach((listener) => {
+    try {
+      listener();
+    } catch (e) {
+      console.warn('Auth listener error:', e);
+    }
+  });
+};
+
 export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestInit = {}
@@ -143,6 +163,17 @@ export async function apiRequest<T = any>(
       const err = new Error(errorMsg) as Error & { status?: number; data?: any };
       err.status = response.status;
       err.data = json;
+
+      // When token is invalid, expired, or access is denied on protected endpoints:
+      // automatically clear stored credentials and notify auth context to logout
+      if (
+        (response.status === 401 || response.status === 403) &&
+        !cleanEndpoint.includes('/auth/login')
+      ) {
+        authStorage.clearAuth().catch(() => {});
+        notifyAuthError();
+      }
+
       throw err;
     }
 

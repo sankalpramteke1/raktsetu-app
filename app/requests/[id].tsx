@@ -30,9 +30,18 @@ export default function RequestDetailScreen() {
   const [request, setRequest] = useState<BloodRequest | undefined>();
 
   useEffect(() => {
+    let isMounted = true;
     if (requestId) {
-      requestService.getRequestById(requestId).then(setRequest);
+      requestService
+        .getRequestById(requestId)
+        .then((r) => {
+          if (isMounted) setRequest(r);
+        })
+        .catch(() => {});
     }
+    return () => {
+      isMounted = false;
+    };
   }, [requestId]);
 
   if (!request) {

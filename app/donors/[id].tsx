@@ -3,10 +3,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
-  FlatList,
   Linking,
   Pressable,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { BorderRadius, Palette, Shadows, Spacing } from '../../src/constants/theme';
 import { donorService } from '../../src/services/donorService';
-import { DonationRecord, Donor } from '../../src/types/donor';
+import { Donor } from '../../src/types/donor';
 
 export default function DonorDetailScreen() {
   const router = useRouter();
@@ -22,13 +22,20 @@ export default function DonorDetailScreen() {
   const donorId = params.id;
 
   const [donor, setDonor] = useState<Donor | undefined>();
-  const [history, setHistory] = useState<DonationRecord[]>([]);
 
   useEffect(() => {
+    let isMounted = true;
     if (donorId) {
-      donorService.getDonorById(donorId).then(setDonor);
-      donorService.getDonationHistory(donorId).then(setHistory);
+      donorService
+        .getDonorById(donorId)
+        .then((d) => {
+          if (isMounted) setDonor(d);
+        })
+        .catch(() => {});
     }
+    return () => {
+      isMounted = false;
+    };
   }, [donorId]);
 
   const handleCall = () => {
@@ -68,10 +75,6 @@ export default function DonorDetailScreen() {
     );
   }
 
-  // Derive first donation date from history or fallback
-  const firstDonationDate =
-    history.length > 0 ? history[history.length - 1].donationDate : '14 Mar 2025';
-
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Header */}
@@ -86,104 +89,106 @@ export default function DonorDetailScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
-      <FlatList
-        data={history}
-        keyExtractor={(item) => item.donationId}
+      <ScrollView
         contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        ListHeaderComponent={
-          <View style={styles.headerSection}>
-            {/* Clean Profile Header */}
-            <View style={styles.profileCard}>
-              <View style={styles.profileTop}>
-                <View style={styles.avatarLarge}>
-                  <Text style={styles.avatarLargeText}>{getInitials(donor.fullName)}</Text>
-                </View>
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.headerSection}>
+          {/* Clean Profile Header */}
+          <View style={styles.profileCard}>
+            <View style={styles.profileTop}>
+              <View style={styles.avatarLarge}>
+                <Text style={styles.avatarLargeText}>{getInitials(donor.fullName)}</Text>
+              </View>
 
-                <View style={styles.nameCol}>
-                  <Text style={styles.donorName}>{donor.fullName}</Text>
-                  <View style={styles.badgeRow}>
-                    <View style={styles.bloodBadge}>
-                      <Text style={styles.bloodBadgeText}>{donor.bloodGroup}</Text>
-                    </View>
-                    <View style={styles.statusBadge}>
-                      <Text style={styles.statusBadgeText}>{donor.status}</Text>
-                    </View>
+              <View style={styles.nameCol}>
+                <Text style={styles.donorName}>{donor.fullName}</Text>
+                <View style={styles.badgeRow}>
+                  <View style={styles.bloodBadge}>
+                    <Text style={styles.bloodBadgeText}>{donor.bloodGroup}</Text>
+                  </View>
+                  <View style={styles.statusBadge}>
+                    <Text style={styles.statusBadgeText}>{donor.status}</Text>
                   </View>
                 </View>
               </View>
-
-              {/* Action Buttons: Call & Message */}
-              <View style={styles.actionsRow}>
-                <TouchableOpacity
-                  style={[styles.actionBtn, styles.callBtn]}
-                  onPress={handleCall}
-                  activeOpacity={0.8}>
-                  <Ionicons name="call" size={15} color={Palette.white} />
-                  <Text style={styles.callBtnText}>Call</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.actionBtn, styles.messageBtn]}
-                  onPress={handleMessage}
-                  activeOpacity={0.8}>
-                  <Ionicons name="chatbubble-outline" size={15} color={Palette.textPrimary} />
-                  <Text style={styles.messageBtnText}>Message</Text>
-                </TouchableOpacity>
-              </View>
             </View>
 
-            {/* Compact Statistics: Total Donations, Last Donation, First Donation */}
-            <View style={styles.statsCard}>
-              <View style={styles.statCol}>
-                <Text style={styles.statVal}>{donor.totalDonations}</Text>
-                <Text style={styles.statLabel}>Total Donations</Text>
-              </View>
+            {/* Action Buttons: Call & Message */}
+            <View style={styles.actionsRow}>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.callBtn]}
+                onPress={handleCall}
+                activeOpacity={0.8}>
+                <Ionicons name="call" size={15} color={Palette.white} />
+                <Text style={styles.callBtnText}>Call</Text>
+              </TouchableOpacity>
 
-              <View style={styles.dividerV} />
-
-              <View style={styles.statCol}>
-                <Text style={styles.statValSm}>{donor.lastDonationDate.split(' ')[0]} {donor.lastDonationDate.split(' ')[1]}</Text>
-                <Text style={styles.statLabel}>Last Donation</Text>
-              </View>
-
-              <View style={styles.dividerV} />
-
-              <View style={styles.statCol}>
-                <Text style={styles.statValSm}>{firstDonationDate.split(' ')[0]} {firstDonationDate.split(' ')[1]}</Text>
-                <Text style={styles.statLabel}>First Donation</Text>
-              </View>
-            </View>
-
-            {/* Section Title */}
-            <View style={styles.historySectionHeader}>
-              <Text style={styles.historyTitle}>Donation History</Text>
-              <Text style={styles.historyCount}>{history.length} records</Text>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.messageBtn]}
+                onPress={handleMessage}
+                activeOpacity={0.8}>
+                <Ionicons name="chatbubble-outline" size={15} color={Palette.textPrimary} />
+                <Text style={styles.messageBtnText}>Message</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        }
-        renderItem={({ item, index }) => (
-          <View style={styles.timelineRow}>
-            {/* Timeline Gutter */}
-            <View style={styles.gutter}>
-              <View style={styles.timelineDot}>
-                <View style={styles.timelineInnerDot} />
-              </View>
-              {index !== history.length - 1 && <View style={styles.timelineLine} />}
+
+          {/* Compact Statistics: Total Donations, Last Donation */}
+          <View style={styles.statsCard}>
+            <View style={styles.statCol}>
+              <Text style={styles.statVal}>{donor.totalDonations}</Text>
+              <Text style={styles.statLabel}>Total Donations</Text>
             </View>
 
-            {/* Timeline Card */}
-            <View style={styles.timelineCard}>
-              <View style={styles.timelineTop}>
-                <Text style={styles.timelineDate}>{item.donationDate}</Text>
-                <Text style={styles.timelineHb}>Hb: {item.hemoglobin} g/dL</Text>
-              </View>
-              <Text style={styles.timelineCenter}>{item.campOrCenter}</Text>
-              <Text style={styles.timelineBagId}>Bag: {item.bagId}</Text>
+            <View style={styles.dividerV} />
+
+            <View style={styles.statCol}>
+              <Text style={styles.statValSm}>{donor.lastDonationDate}</Text>
+              <Text style={styles.statLabel}>Last Donation</Text>
+            </View>
+
+            <View style={styles.dividerV} />
+
+            <View style={styles.statCol}>
+              <Text style={styles.statValSm}>{donor.nextEligibleDate || 'N/A'}</Text>
+              <Text style={styles.statLabel}>Next Eligible</Text>
             </View>
           </View>
-        )}
-      />
+
+          {/* Donor Details Card */}
+          <View style={styles.detailsCard}>
+            <Text style={styles.detailsTitle}>Donor Information</Text>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Donor ID</Text>
+              <Text style={styles.detailValue}>{donor.donorId}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Gender</Text>
+              <Text style={styles.detailValue}>{donor.gender}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Age</Text>
+              <Text style={styles.detailValue}>{donor.age} years</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Weight</Text>
+              <Text style={styles.detailValue}>{donor.weightKg} kg</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Phone</Text>
+              <Text style={styles.detailValue}>{donor.mobile}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Email</Text>
+              <Text style={styles.detailValue}>{donor.email}</Text>
+            </View>
+            <View style={[styles.detailRow, { borderBottomWidth: 0 }]}>
+              <Text style={styles.detailLabel}>Location</Text>
+              <Text style={styles.detailValue}>{donor.location}</Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -361,84 +366,40 @@ const styles = StyleSheet.create({
     height: 24,
     backgroundColor: Palette.borderSubtle,
   },
-  historySectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.sm,
-  },
-  historyTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: Palette.textPrimary,
-  },
-  historyCount: {
-    fontSize: 11,
-    color: Palette.textMuted,
-  },
-  timelineRow: {
-    flexDirection: 'row',
-  },
-  gutter: {
-    width: 20,
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  timelineDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: Palette.primarySurface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  timelineInnerDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: Palette.primary,
-  },
-  timelineLine: {
-    width: 2,
-    flex: 1,
-    backgroundColor: Palette.borderSubtle,
-    marginTop: 2,
-    marginBottom: -2,
-  },
-  timelineCard: {
-    flex: 1,
+  detailsCard: {
     backgroundColor: Palette.white,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     borderWidth: 1,
     borderColor: Palette.border,
-    marginBottom: 8,
+    ...Shadows.subtle,
+    marginTop: Spacing.sm,
   },
-  timelineTop: {
+  detailsTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Palette.textPrimary,
+    marginBottom: Spacing.md,
+  },
+  detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 2,
+    paddingVertical: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Palette.borderSubtle,
   },
-  timelineDate: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: Palette.textPrimary,
-  },
-  timelineHb: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: Palette.healthy,
-  },
-  timelineCenter: {
+  detailLabel: {
     fontSize: 12,
-    color: Palette.textSecondary,
-    marginBottom: 4,
-  },
-  timelineBagId: {
-    fontSize: 11,
     color: Palette.textMuted,
+    fontWeight: '500',
+  },
+  detailValue: {
+    fontSize: 12,
+    color: Palette.textPrimary,
+    fontWeight: '600',
+    maxWidth: '60%',
+    textAlign: 'right',
   },
   centerContainer: {
     flex: 1,

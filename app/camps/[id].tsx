@@ -39,9 +39,13 @@ export default function CampDetailScreen() {
 
   const loadCamp = useCallback(async () => {
     if (!id) return;
-    const found = await campService.getCampById(id);
-    if (found) {
-      setCamp({ ...found });
+    try {
+      const found = await campService.getCampById(id);
+      if (found) {
+        setCamp({ ...found });
+      }
+    } catch (e) {
+      console.warn('Error loading camp details:', e);
     }
   }, [id]);
 

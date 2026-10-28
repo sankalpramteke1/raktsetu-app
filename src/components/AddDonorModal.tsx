@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   Modal,
   Pressable,
@@ -10,8 +11,8 @@ import {
   View,
 } from 'react-native';
 import { BorderRadius, Palette, Shadows, Spacing } from '../constants/theme';
-import { DONORS } from '../data/donors';
 import { campService } from '../services/campService';
+import { donorService } from '../services/donorService';
 import { BloodDonationCamp } from '../types/camp';
 import { Donor } from '../types/donor';
 
@@ -31,6 +32,20 @@ export const AddDonorModal: React.FC<Props> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [addingId, setAddingId] = useState<string | null>(null);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
+  const [allDonors, setAllDonors] = useState<Donor[]>([]);
+  const [loadingDonors, setLoadingDonors] = useState(false);
+
+  // Load donors from API
+  useEffect(() => {
+    if (visible) {
+      setLoadingDonors(true);
+      donorService
+        .getAllDonors()
+        .then(setAllDonors)
+        .catch(() => setAllDonors([]))
+        .finally(() => setLoadingDonors(false));
+    }
+  }, [visible]);
 
   // Set of already added donor IDs
   const registeredIds = useMemo(() => {
@@ -41,9 +56,9 @@ export const AddDonorModal: React.FC<Props> = ({
   const filteredDonors = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) {
-      return DONORS.slice(0, 30); // show top 30 initially
+      return allDonors.slice(0, 30); // show top 30 initially
     }
-    return DONORS.filter(
+    return allDonors.filter(
       (d) =>
         d.fullName.toLowerCase().includes(q) ||
         d.donorId.toLowerCase().includes(q) ||
@@ -51,7 +66,7 @@ export const AddDonorModal: React.FC<Props> = ({
         d.bloodGroup.toLowerCase().includes(q) ||
         d.location.toLowerCase().includes(q)
     );
-  }, [searchQuery]);
+  }, [searchQuery, allDonors]);
 
   const handleAddDonor = async (donor: Donor) => {
     setAddingId(donor.donorId);
@@ -176,22 +191,29 @@ export const AddDonorModal: React.FC<Props> = ({
           </View>
 
           {/* Donor List */}
-          <FlatList
-            data={filteredDonors}
-            keyExtractor={(item) => item.donorId}
-            renderItem={renderDonorItem}
-            contentContainerStyle={styles.listContent}
-            keyboardShouldPersistTaps="handled"
-            ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <Ionicons name="people-outline" size={36} color={Palette.border} />
-                <Text style={styles.emptyText}>No matching donors found</Text>
-                <Text style={styles.emptySubtext}>
-                  Try searching with a different name, blood group, or donor ID
-                </Text>
-              </View>
-            }
-          />
+          {loadingDonors ? (
+            <View style={styles.emptyContainer}>
+              <ActivityIndicator size="large" color={Palette.primary} />
+              <Text style={styles.emptyText}>Loading donors...</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={filteredDonors}
+              keyExtractor={(item) => item.donorId}
+              renderItem={renderDonorItem}
+              contentContainerStyle={styles.listContent}
+              keyboardShouldPersistTaps="handled"
+              ListEmptyComponent={
+                <View style={styles.emptyContainer}>
+                  <Ionicons name="people-outline" size={36} color={Palette.border} />
+                  <Text style={styles.emptyText}>No matching donors found</Text>
+                  <Text style={styles.emptySubtext}>
+                    Try searching with a different name, blood group, or donor ID
+                  </Text>
+                </View>
+              }
+            />
+          )}
         </View>
       </View>
     </Modal>

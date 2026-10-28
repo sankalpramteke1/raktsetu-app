@@ -1,4 +1,3 @@
-import { BLOOD_REQUESTS } from '../data/bloodRequests';
 import { BloodGroup } from '../types/blood';
 import { BloodRequest, RequestPriority, RequestStatus } from '../types/request';
 import { apiRequest } from './apiClient';
@@ -68,33 +67,27 @@ const mapBackendRequisition = (r: BackendRequisition): BloodRequest => {
 
 export const requestService = {
   getAllRequests: async (): Promise<BloodRequest[]> => {
-    try {
-      const res = await apiRequest<{ requisitions: BackendRequisition[] }>('/requisitions');
-      if (res?.requisitions && res.requisitions.length > 0) {
-        return res.requisitions.map(mapBackendRequisition);
-      }
-    } catch (e) {
-      console.warn('Using local fallback for blood requests:', e);
+    const res = await apiRequest<{ requisitions: BackendRequisition[] }>('/requisitions');
+    if (res?.requisitions && res.requisitions.length > 0) {
+      return res.requisitions.map(mapBackendRequisition);
     }
-    return [...BLOOD_REQUESTS];
+    return [];
   },
 
   getRequestById: async (id: string): Promise<BloodRequest | undefined> => {
-    try {
-      const numericId = id.replace(/\D/g, '');
-      if (numericId) {
+    const numericId = id.replace(/\D/g, '');
+    if (numericId) {
+      try {
         const res = await apiRequest<{ requisition: BackendRequisition }>(`/requisitions/${numericId}`);
         if (res?.requisition) {
           return mapBackendRequisition(res.requisition);
         }
+      } catch {
+        // fall through to list search
       }
-      const all = await requestService.getAllRequests();
-      const found = all.find((r) => r.requestId === id || r.requestId.endsWith(id));
-      if (found) return found;
-    } catch (e) {
-      console.warn(`Failed to fetch requisition ${id} from API:`, e);
     }
-    return BLOOD_REQUESTS.find((r) => r.requestId === id);
+    const all = await requestService.getAllRequests();
+    return all.find((r) => r.requestId === id || r.requestId.endsWith(id));
   },
 
   createRequisition: async (payload: Partial<BackendRequisition>): Promise<BloodRequest> => {

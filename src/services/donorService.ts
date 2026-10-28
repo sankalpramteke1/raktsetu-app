@@ -1,7 +1,5 @@
-import { getDonationsForDonor } from '../data/donationHistory';
-import { DONORS } from '../data/donors';
 import { BloodGroup } from '../types/blood';
-import { DonationRecord, Donor, DonorStatus } from '../types/donor';
+import { Donor, DonorStatus } from '../types/donor';
 import { apiRequest } from './apiClient';
 
 interface BackendDonor {
@@ -63,35 +61,29 @@ const mapBackendDonor = (b: BackendDonor): Donor => {
 
 export const donorService = {
   getAllDonors: async (): Promise<Donor[]> => {
-    try {
-      const res = await apiRequest<{ donors: BackendDonor[] }>('/donors');
-      if (res?.donors && res.donors.length > 0) {
-        return res.donors.map(mapBackendDonor);
-      }
-    } catch (e) {
-      console.warn('Using local fallback for donors list:', e);
+    const res = await apiRequest<{ donors: BackendDonor[] }>('/donors');
+    if (res?.donors && res.donors.length > 0) {
+      return res.donors.map(mapBackendDonor);
     }
-    return [...DONORS];
+    return [];
   },
 
   getDonorById: async (id: string): Promise<Donor | undefined> => {
-    try {
-      // If id is numeric or can be parsed
-      const numericId = id.replace(/\D/g, '');
-      if (numericId) {
+    // If id is numeric or can be parsed
+    const numericId = id.replace(/\D/g, '');
+    if (numericId) {
+      try {
         const res = await apiRequest<{ donor: BackendDonor }>(`/donors/${numericId}`);
         if (res?.donor) {
           return mapBackendDonor(res.donor);
         }
+      } catch {
+        // fall through to list search
       }
-      // Also try fetching list to find by donorId
-      const all = await donorService.getAllDonors();
-      const match = all.find((d) => d.donorId === id || d.donorId.endsWith(id));
-      if (match) return match;
-    } catch (e) {
-      console.warn(`Failed to fetch donor ${id} from API:`, e);
     }
-    return DONORS.find((d) => d.donorId === id);
+    // Also try fetching list to find by donorId
+    const all = await donorService.getAllDonors();
+    return all.find((d) => d.donorId === id || d.donorId.endsWith(id));
   },
 
   searchDonors: async (
@@ -123,9 +115,5 @@ export const donorService = {
     }
 
     return result;
-  },
-
-  getDonationHistory: async (donorId: string): Promise<DonationRecord[]> => {
-    return Promise.resolve(getDonationsForDonor(donorId));
   },
 };
