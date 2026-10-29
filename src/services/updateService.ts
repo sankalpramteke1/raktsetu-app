@@ -1,5 +1,6 @@
-import { Alert, Linking, Platform } from 'react-native';
+import { Alert, Linking } from 'react-native';
 import Constants from 'expo-constants';
+import * as Updates from 'expo-updates';
 import { API_BASE_URL } from './apiClient';
 
 const GITHUB_REPO = 'sankalpramteke1/raktsetu-app';
@@ -13,6 +14,52 @@ export interface AppVersionInfo {
   fileSize?: string;
   downloadUrl: string;
   releaseNotes?: string;
+}
+
+/**
+ * Checks for Over-The-Air (EAS Update) updates.
+ * In production / preview builds, this downloads new JS/assets in background
+ * and reloads the app instantly without downloading any APK!
+ */
+export async function checkAndApplyEASUpdate(interactive = false): Promise<{
+  updated: boolean;
+  message: string;
+}> {
+  if (__DEV__ || !Updates.isEnabled) {
+    return {
+      updated: false,
+      message: 'Running in development mode (live Metro reload active).',
+    };
+  }
+
+  try {
+    const update = await Updates.checkForUpdateAsync();
+    if (update.isAvailable) {
+      if (interactive) {
+        Alert.alert('EAS Update Found ⚡', 'Naya OTA update download ho raha hai...');
+      }
+
+      await Updates.fetchUpdateAsync();
+
+      Alert.alert(
+        'Update Ready! 🎉',
+        'Naya Over-The-Air update safaltapoorvak apply ho gaya hai! Kya aap app restart karna chahte hain?',
+        [
+          { text: 'Agle restart par', style: 'cancel' },
+          {
+            text: 'Restart Now',
+            onPress: async () => {
+              await Updates.reloadAsync();
+            },
+          },
+        ]
+      );
+      return { updated: true, message: 'Update downloaded and ready to reload.' };
+    }
+    return { updated: false, message: 'Latest EAS bundle already active.' };
+  } catch (err: any) {
+    return { updated: false, message: err?.message || 'EAS Update check failed.' };
+  }
 }
 
 /**
@@ -89,8 +136,15 @@ export async function fetchLatestAppVersion(): Promise<AppVersionInfo | null> {
  * @param isManualCheck If true, shows a confirmation dialog even when app is already up to date.
  */
 export async function checkForAppUpdate(isManualCheck = false): Promise<void> {
-  const currentVersion = Constants.expoConfig?.version || '1.0.0';
+  const currentVersion = Constants.expoConfig?.version || '1.0.6';
 
+  // 1. Try EAS Over-The-Air Update first if enabled
+  if (Updates.isEnabled && !__DEV__) {
+    const ota = await checkAndApplyEASUpdate(isManualCheck);
+    if (ota.updated) return;
+  }
+
+  // 2. Fallback to GitHub Release APK
   try {
     const latestInfo = await fetchLatestAppVersion();
 
@@ -138,7 +192,7 @@ export async function checkForAppUpdate(isManualCheck = false): Promise<void> {
         `Aap pehle se hi latest version (v${currentVersion}) use kar rahe hain.`
       );
     }
-  } catch (error) {
+  } catch {
     if (isManualCheck) {
       Alert.alert('Update Check Failed', 'Network connection check karein.');
     }
