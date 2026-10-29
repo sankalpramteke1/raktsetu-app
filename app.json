@@ -2,7 +2,7 @@
   "expo": {
     "name": "RaktSetu",
     "slug": "raktsetu",
-    "version": "1.0.6",
+    "version": "1.0.8",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "raktsetu",
@@ -19,7 +19,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.sankalp071999.raktsetu",
-      "versionCode": 6
+      "versionCode": 8
     },
     "web": {
       "bundler": "metro",
